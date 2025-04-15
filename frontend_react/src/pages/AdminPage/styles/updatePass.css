@@ -1,0 +1,70 @@
+.head-contnent{
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 40px 40px 0;
+    padding: 5px 0;
+}
+.title-nav{
+    font-size: 25px;
+}
+
+.update-form{
+    width: 320px;
+    height: 340px;
+    margin: 40px auto;
+    gap: 15px;
+    justify-content: space-evenly;
+    background: #dce0e4cc;
+    padding: 15px 20px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .update-form .ip-box{
+    position: relative;
+    align-items: center;
+    border: 1px solid #e0e0e0;
+    padding: 5px 8px;
+    background-color: #ffffff;
+    border-radius: 5px;
+  }
+  
+  .update-form .ip-box .ip-icon{
+    position: absolute;
+    top: 12px;
+    bottom: 0;
+    left: 16px;
+    color: #213547;
+    font-size: 15px;
+  }
+  
+  .update-form .ip-box .ip-info{
+    width: 100%;
+    border: none;
+  
+    padding: 7px 2px 7px 35px;
+    font-size: 13px;
+    background-color: transparent;
+    outline: none;
+    border-radius: 3px;
+  
+  }
+  
+  .ip-box .eye-icon{
+    position: absolute;
+    right: 20px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  
+  
+  .update-form .update-pass-btn{
+    padding: 10px 0;
+    background-color: #213547;
+    color: #ffffff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+  }
