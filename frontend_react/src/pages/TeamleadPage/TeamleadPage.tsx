@@ -1,10 +1,11 @@
+import { Outlet } from "react-router-dom";
+import Layout from "../components/Layout";
 
-const TeamleadPage = () => {
+const TeamleadPage:React.FC = () => {
     return (
-        <div>
-        <h1>Teamlead Page</h1>
-        <p>Welcome to the Teamlead page!</p>
-        </div>
+        <Layout>
+            <Outlet/>
+        </Layout>
     );
 }
 

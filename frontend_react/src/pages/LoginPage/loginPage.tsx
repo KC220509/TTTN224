@@ -32,6 +32,7 @@ function LoginPage() {
             // Lưu token vào localStorage
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('email', response.data.user.email);
+            localStorage.setItem('role_id', response.data.user.role_ID);
             localStorage.setItem('user_id', response.data.user.user_id); 
             localStorage.setItem('username', response.data.user.username); 
             switch (response.data.user.role_ID) {

@@ -20,5 +20,7 @@ class UserService
         return User::where('role_id', '!=',1)->get();
     }
 
-    
+    // public function createDevice($device_name){
+
+    // }
 }

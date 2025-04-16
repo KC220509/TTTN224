@@ -20,8 +20,24 @@ const Header: React.FC = () => {
           window.location.href = '/?error=usernotfound';
         };
 
+        const roleId = Number(localStorage.getItem("role_id"));
+        let urlKey = '';
+        switch (roleId) {
+          case 1:
+            // Role is admin
+            urlKey = 'api/admin';
+            break;
+          case 2:
+            // Role is teamlead
+            urlKey = 'api/teamlead';
+            break;
+          default:
+            urlKey = 'api';
+            break;
+        }
+
         const userId = localStorage.getItem("user_id");
-        const response = await axios.get(`http://127.0.0.1:8000/api/admin/user${userId}`, {
+        const response = await axios.get(`http://127.0.0.1:8000/${urlKey}/user${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
         }
@@ -45,7 +61,7 @@ const Header: React.FC = () => {
     <div className="header">
       {user ? (
         <>
-          <h1>Quản trị viên - {user.username}</h1>
+          <h1>Xin chào, {user.username}</h1>
         </>
       ) : (
         <h1>Đang tải...</h1>

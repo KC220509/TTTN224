@@ -93,6 +93,7 @@ const UserManagers = () => {
                 setEmail('');
                 setPassword('');
                 setRoleID(0);
+                setShowPassword(false);
                 fetchUsers();
                 (e.target as HTMLFormElement).reset(); // Reset form
                 setSuccessMessage('Tạo người dùng thành công !');

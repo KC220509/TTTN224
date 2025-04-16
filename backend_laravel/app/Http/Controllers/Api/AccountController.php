@@ -40,6 +40,20 @@ class AccountController extends Controller
         ], 401);
     }
 
+    public function index($user_id){
+
+        $user = $this->userService->getUser($user_id);
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'Admin page',
+            'user' => $user,
+        ], 200);
+   }
 
     
 

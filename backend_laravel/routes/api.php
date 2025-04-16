@@ -20,7 +20,7 @@ use Laravel\Sanctum\Sanctum;
 Route::post('login', [AccountController::class, 'loginAction'])->name('login');
 
 Route::middleware(['auth:sanctum', 'check_role:1'])->prefix('admin')->group(function () {
-    Route::get('/user{user_id}', [AdminController::class, 'index'])->name('index');
+    Route::get('/user{user_id}', [AccountController::class, 'index'])->name('index');
     Route::get('/list-user', [AdminController::class, 'getListUser'])->name('getListUser');
     Route::post('/create-user', [AdminController::class, 'createUser'])->name('createUser');
 
@@ -28,5 +28,10 @@ Route::middleware(['auth:sanctum', 'check_role:1'])->prefix('admin')->group(func
 
     Route::patch('/update-profile-pass', [AdminController::class, 'updatePass'])->name('updateUser');
     Route::post('/reset-pass', [AdminController::class, 'resetPass'])->name('resetPassAdmin');
+});
+
+
+Route::middleware(['auth:sanctum', 'check_role:2'])->prefix('teamlead')->group(function () {
+    Route::get('/user{user_id}', [AccountController::class, 'index'])->name('tl_index');
 });
 

@@ -46,14 +46,26 @@ return new class extends Migration {
             $table->id('device_id');
             $table->string('name');
             $table->string('ip_address');
+            $table->unsignedBigInteger('user_ID');  
             $table->timestamps();
+
+            $table->foreign('user_ID')
+                  ->references('user_id')
+                  ->on('users')
+                  ->onDelete('cascade');
         });
 
         // DEVICE GROUPS
         Schema::create('device_groups', function (Blueprint $table) {
             $table->id('device_group_id');
             $table->string('name');
+            $table->unsignedBigInteger('user_ID');
             $table->timestamps();
+
+            $table->foreign('user_ID')
+                  ->references('user_id')
+                  ->on('users')
+                  ->onDelete('cascade');
         });
 
         // DEVICE_GROUP_DEVICE (pivot)
@@ -76,7 +88,13 @@ return new class extends Migration {
             $table->id('command_list_id');
             $table->string('name');
             $table->text('commands');
+            $table->unsignedBigInteger('user_ID');  
             $table->timestamps();
+
+            $table->foreign('user_ID')
+                  ->references('user_id')
+                  ->on('users')
+                  ->onDelete('cascade');
         });
 
         // PROFILES
