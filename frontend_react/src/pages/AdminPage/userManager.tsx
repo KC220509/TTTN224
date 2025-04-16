@@ -124,7 +124,7 @@ const UserManagers = () => {
 
     return(
         <>
-            <div className="head-contnent flex-row">
+            <div className="head-content flex-row">
                 <h1 className="title-nav">{title}</h1>
                 {errorMessage && <p style={{color: 'red',textAlign: 'right', fontWeight: 'bold'}}>{errorMessage}</p>}
                 {successMessage && <p style={{color: 'green',textAlign: 'right', fontWeight: 'bold'}}>{successMessage}</p>}

@@ -23,6 +23,16 @@ class AddDeviceRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'ip_address' => 'required|ip',
+            'user_ID' => 'required|integer|exists:users,user_id',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'ip_address.ip' => 'Địa chỉ IP không hợp lệ.',
+            'user_ID.exists' => 'Người dùng không tồn tại trong hệ thống.',
         ];
     }
 }

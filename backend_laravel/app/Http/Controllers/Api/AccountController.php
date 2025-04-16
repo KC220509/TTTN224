@@ -41,7 +41,11 @@ class AccountController extends Controller
     }
 
     public function index($user_id){
-
+        if(!Auth::check()){
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 401);
+        }
         $user = $this->userService->getUser($user_id);
         if (!$user) {
             return response()->json([

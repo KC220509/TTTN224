@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AccountController;
 use App\Http\Controllers\Api\Admin\AdminController;
+use App\Http\Controllers\TeamleadController;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -33,5 +34,7 @@ Route::middleware(['auth:sanctum', 'check_role:1'])->prefix('admin')->group(func
 
 Route::middleware(['auth:sanctum', 'check_role:2'])->prefix('teamlead')->group(function () {
     Route::get('/user{user_id}', [AccountController::class, 'index'])->name('tl_index');
+    Route::get('/list-device/{user_id}', [TeamleadController::class, 'getListDevice'])->name('getListDevice');
+    Route::post('/create-device', [TeamleadController::class, 'createDevice'])->name('createDevice');
 });
 

@@ -40,7 +40,7 @@ const Header: React.FC = () => {
         const response = await axios.get(`http://127.0.0.1:8000/${urlKey}/user${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
-        }
+          }
         });
 
         setUser(response.data.user);
