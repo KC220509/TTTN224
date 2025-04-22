@@ -2,13 +2,14 @@
 import './loginStyle.css'
 
 import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import emailjs from "emailjs-com";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { faEnvelope, faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
-import axios from 'axios';
 
 function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -72,10 +73,53 @@ function LoginPage() {
     }else if (errorParam === 'unauthorized') {
       setError('Bạn không có quyền truy cập trang này.');
     }
+
+    setTimeout(() => {
+      setError('');
+    }
+    , 3000);
   }, [location]);
   
-  
 
+  const [showResetForm, setShowResetForm] = useState(false);
+
+  const [successReset, setSuccessReset] = useState('');
+  const [emailReset, setEmailReset] = useState('');
+
+  
+  
+  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try{
+
+      const response = await axios.post('http://127.0.0.1:8000/api/reset-pass', {
+        email: emailReset,
+      })
+        
+      if(response.data.success){
+        emailjs.send(
+            'aiotmonitor_4fitty8', // service_id
+            'aiotmonitor_zw0kcae', // template_id
+            {
+                email: response.data.email,
+                new_password: response.data.new_password,
+            },
+            'YrnmdIXlr9p5s_B_x' 
+        ).then(() => {
+          setSuccessReset(`Mật khẩu đã được làm mới. Hãy kiểm tra email để lấy mật khẩu mới.`);
+      
+          // Chuyển hướng về trang đăng nhập
+          setTimeout(() => {
+            setShowResetForm(false); 
+            setSuccessReset('');
+          }, 5000); 
+        });
+      }
+    }
+    catch (error) { 
+      console.error("Error resetting password:", error);
+    }
+  };
 
   return (
     <>
@@ -101,13 +145,30 @@ function LoginPage() {
               <input  onChange={(e)=>setPassword(e.target.value)} className='ip-info' type={showPassword ? 'text' : 'password'} id='password' name='password' placeholder='Password' required />
               <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className='icon eye-icon' onClick={() => setShowPassword(!showPassword)} />
             </div>
-            <div className="forgot-pass">
-              <Link to='/login'>Forgot password?</Link>
+            <div className="forgot-pass-link">
+              <a onClick={() => setShowResetForm(true)}>Quên mật khẩu?</a>
             </div>
-            <button type='submit' className='login-btn'>Log In</button>
+            <button type='submit' className='login-btn'>Đăng Nhập</button>
           </form>
           {error && <p style={{color: 'red',textAlign: 'center'}}>{error}</p>}
         </div>
+
+        {showResetForm && (
+          <div className='forgot-pass-container flex-col'>
+            <form onSubmit={handleResetPassword} method="post" className='form-reset-pass flex-col'>
+              <div className='form-title'>
+                <h1>Yêu cầu cấp lại mật khẩu</h1>
+              </div>
+              <input className='ip-email-reset' onChange={(e) => setEmailReset(e.target.value)} type="email" name="email" id="email" placeholder='Nhập email của bạn' required />
+              <div className='btn-box flex-row'>
+                <button onClick={() => setShowResetForm(false)} className='close-form-btn'>Đóng</button>
+                <button type="submit" className='reset-pass-btn'>Gửi</button>
+              </div>
+                
+              <span className="success-reset" style={{color: 'green', fontWeight: 'bold', textAlign: 'center'}}>{successReset}</span>
+            </form>
+          </div>
+        )}
       </div>
     </>
     

@@ -31,11 +31,6 @@ const Sidebar: React.FC = () => {
               state={{ title: 'Cập nhật mật khẩu' }}>
                 Đổi mật khẩu
             </NavLink>
-
-            <NavLink to="/admin-page/reset-pass"
-              className={({ isActive }: { isActive: boolean }) => (isActive ? 'active-link' : '')} >
-                Reset mật khẩu
-            </NavLink>
           </ul>
         </>
       }

@@ -125,7 +125,6 @@ const DeviceDeviceGroup = () => {
                 <div className="item-name">Switchs</div>
               </div>
           </div>
-          {success && <p style={{color: '#00ff37',textAlign: 'center', fontWeight: 'bold'}}>{success}</p>}
           <div className="device-group-footer">
             <button className="btn-open-addGroup">
               <FontAwesomeIcon icon={faPlus} className='icon' />

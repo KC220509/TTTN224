@@ -13,7 +13,6 @@ import PrivateRoute from './PrivateRoute.tsx';
 import UserManagers from './pages/AdminPage/userManager.tsx';
 import IndexPage from './pages/AdminPage/indexPage.tsx';
 import UpdatePass from './pages/AdminPage/updatePass.tsx';
-import ResetPass from './pages/AdminPage/resetPassPage.tsx';
 import IndexPageTL from './pages/TeamleadPage/indexPage.tsx';
 import DeviceDeviceGroup from './pages/TeamleadPage/device-Dvgroup.tsx';
 // import IndexPage from './pages/AdminPage/indexPage.tsx';
@@ -32,7 +31,6 @@ createRoot(document.getElementById('root')!).render(
             <Route index element={<IndexPage />} />
             <Route path='user-manager' element={<UserManagers />} />
             <Route path='update-pass' element={<UpdatePass />} />
-            <Route path='reset-pass' element={<ResetPass />} />
           </Route>
 
           {/* Teamlead Layout */}

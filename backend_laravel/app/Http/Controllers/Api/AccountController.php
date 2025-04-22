@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Account\LoginRequest;
+use App\Http\Requests\Api\Admin\ResetPassRequest;
 use App\Models\User;
 use App\Services\UserService;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class AccountController extends Controller
 {
@@ -60,6 +61,24 @@ class AccountController extends Controller
    }
 
     
+   public function ResetPass(ResetPassRequest $resetPassRequest){
+        $request = $resetPassRequest->validated();
+        $user = User::where('email', $request['email'])->first();
+        if (!$user) {
+            return response()->json([
+                'error' => 'Email không tồn tại !',
+            ], 404);
+        }
+        $new_password = Str::random(8); 
+        $user->password = Hash::make($new_password);
+        $user->save();
 
+        return response()->json([
+            'success' => true,
+            'message' => 'Mật khẩu đã được làm mới thành công',
+            'email' => $user->email,
+            'new_password' => $new_password,
+        ], 200);
+    }                           
     
 }

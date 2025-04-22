@@ -1,6 +1,9 @@
 .title-nav{
     font-size: 25px;
 }
+.head-content{
+    justify-content: space-between;
+}
 .user-manager-container{
     width: max-content;
     height: 450px;
