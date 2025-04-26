@@ -7,7 +7,10 @@ use App\Models\Device;
 use App\Services\DeviceService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
+use Illuminate\Process\Exceptions\ProcessFailedException;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\Process\Process;
+
 
 class TeamleadController extends Controller
 {
@@ -38,6 +41,61 @@ class TeamleadController extends Controller
             'message' => 'Danh sách thiết bị',
             'devices' => $devices,
         ], 200);
+    }
+
+    public function checkDevice(Request $request)
+    {
+        $device_name = $request->name;
+        $sever_ip = $request->ip_address;
+
+        $port = $request->ssh_port; // Cổng mặc định SSH
+        $timeout = 2; // Thời gian chờ kết nối (2 giây)
+        $errno = 0;
+        $errstr = '';
+
+        // Cố gắng kết nối với máy qua cổng SSH
+        try {
+            $check = @fsockopen($sever_ip, $port, $errno, $errstr, $timeout);
+
+            if ($check) {
+                fclose($check);
+
+                $device_ip = $this->getIPDevice($device_name);
+                return response()->json([
+                    'status' => 'online',
+                    'ip' => $device_ip,
+                    'port' => $port
+                ]);
+            } else {
+                return response()->json([
+                    'status' => 'offline',
+                    'ip' => $sever_ip,
+                    'port' => $port,
+                    'error' => $errstr,
+                    'code' => $errno
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Connection failed: ' . $e->getMessage()
+            ], 500);
+        }
+    }   
+    // Hàm để lấy IP container
+    private function getIPDevice($deviceName)
+    {
+        $process = new Process([
+            'docker', 'inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', $deviceName
+        ]);
+
+        try {
+            $process->mustRun();
+            $ip = trim($process->getOutput());
+            return $ip ?: null;
+        } catch (ProcessFailedException $e) {
+            return null;
+        }
     }
 
     public function createDevice(AddDeviceRequest $addDeviceRequest)

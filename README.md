@@ -38,3 +38,19 @@ npm install
 
 # Chạy ứng dụng React
 npm run dev
+
+
+
+
+#Khởi động thiết bị ảo
+docker run -it --name device2 -p 2222:22 ubuntu
+
+apt update
+apt-get install iputils-ping
+
+apt install openssh-server    --> có thể không cần
+service ssh start
+
+
+#Kiểm tra ip
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}'  tên device

@@ -36,6 +36,7 @@ Route::middleware(['auth:sanctum', 'check_role:1'])->prefix('admin')->group(func
 Route::middleware(['auth:sanctum', 'check_role:2'])->prefix('teamlead')->group(function () {
     Route::get('/user{user_id}', [AccountController::class, 'index'])->name('tl_index');
     Route::get('/list-device/{user_id}', [TeamleadController::class, 'getListDevice'])->name('getListDevice');
+    Route::post('/check-device', [TeamleadController::class, 'checkDevice'])->name('checkDevice');
     Route::post('/create-device', [TeamleadController::class, 'createDevice'])->name('createDevice');
 });
 

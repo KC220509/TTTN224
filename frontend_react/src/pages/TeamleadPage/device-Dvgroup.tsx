@@ -49,46 +49,60 @@ const DeviceDeviceGroup = () => {
   const [showAddDevice, setShowAddDevice] = useState(false);
   const [name, setDeviceName] = useState('');
   const [ip_address, setIpAddress] = useState('');
+  const [ssh_port, setSsh_port] = useState('');
+
   const handleAddDevice = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     try{
-      const resAddDevice = await axios.post('http://127.0.0.1:8000/api/teamlead/create-device',{
+      const resCheckIp = await axios.post("http://127.0.0.1:8000/api/teamlead/check-device", {
         name: name,
         ip_address: ip_address,
-        user_ID: localStorage.getItem("user_id"),
-        
-        }, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          }
-        })
-
-        if(resAddDevice.data.success){
-          setShowAddDevice(false);
-          setDeviceName('');
-          setIpAddress('');
-          fetchListDevice();
-          (e.target as HTMLFormElement).reset();
-          setError('');
-          setSuccess(resAddDevice.data.message);
-          setTimeout(() => {
-            setSuccess(null);
-          }
-          , 2000);
-
+        ssh_port: ssh_port,
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         }
-      }catch(err){
-        setSuccess('');
-        setTimeout(() => {
-            if (axios.isAxiosError(err) && err.response?.data?.errors?.ip_address) {
-              setError(err.response.data.errors.ip_address[0]);
-            } else {
-              setError('Đã xảy ra lỗi không xác định !');
+      });
+
+      if (resCheckIp.data.status === "online") {
+        const resAddDevice = await axios.post('http://127.0.0.1:8000/api/teamlead/create-device',{
+          name: name,
+          ip_address: resCheckIp.data.ip,
+          user_ID: localStorage.getItem("user_id"),
+          
+          }, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
             }
-        }, 2000); 
+          })
+          if(resAddDevice.data.success){
+            setShowAddDevice(false);
+            setDeviceName('');
+            setIpAddress('');
+            fetchListDevice();
+            (e.target as HTMLFormElement).reset();
+            setError('');
+            setSuccess(resAddDevice.data.message);
+            setTimeout(() => {
+              setSuccess('');
+            }
+            , 2000);
+    
+          }
       }
 
+    }catch(err){
+      setSuccess('');
+      setTimeout(() => {
+          if (axios.isAxiosError(err) && err.response?.data?.errors?.ip_address) {
+            setError(err.response.data.errors.ip_address[0]);
+          } else {
+            setError("Không thể kết nối đến thiết bị. Vui lòng kiểm tra lại.");
+          }
+      }, 3000); 
     }
+  };
 
 
   return (
@@ -144,8 +158,11 @@ const DeviceDeviceGroup = () => {
             <label htmlFor="name">Device Name:</label>
             <input onChange={(e) => setDeviceName(e.target.value)} type="text" id="name" name="name" required />
 
-            <label htmlFor="ip-address">IP Address:</label>
+            <label htmlFor="ip-address">IP Sever:</label>
             <input onChange={(e) => setIpAddress(e.target.value)} type="text" id="ip-address" name="ip-address" required />
+
+            <label htmlFor="ip-address">SSH_Port:</label>
+            <input onChange={(e) => setSsh_port(e.target.value)} type="text" id="ip-address" name="ip-address" required />
 
             <button type="submit" className='btn-add-device'>Thêm mới</button>
           </div>
