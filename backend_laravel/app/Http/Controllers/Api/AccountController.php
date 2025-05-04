@@ -79,6 +79,23 @@ class AccountController extends Controller
             'email' => $user->email,
             'new_password' => $new_password,
         ], 200);
-    }                           
+    }                       
+    
+    public function AdminResetPass(){
+        $user = User::where('role_ID', 1)->first();
+        if (!$user) {
+            return response()->json([
+                'error' => 'Email không tồn tại !',
+            ], 404);
+        }
+        $new_password = 'admin123'; 
+        $user->password = Hash::make($new_password);
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Mật khẩu đã được làm mới thành công',
+        ], 200);
+    }    
     
 }

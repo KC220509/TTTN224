@@ -16,5 +16,9 @@ class Device extends Model
         'ip_address',
         'user_ID',
     ];
+    public function deviceGroups()
+    {
+        return $this->belongsToMany(DeviceGroup::class, 'device_group_device', 'device_ID', 'device_group_ID');
+    }
 }
 

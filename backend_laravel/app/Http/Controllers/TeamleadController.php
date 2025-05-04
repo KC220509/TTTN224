@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\Api\Teamlead\AddDeviceRequest;
+use App\Http\Requests\Api\Teamlead\AddDvGroupRequest;
 use App\Models\Device;
+use App\Models\DeviceGroup;
 use App\Services\DeviceService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
@@ -105,6 +107,7 @@ class TeamleadController extends Controller
         $device = new Device();
         $device->name = $request['name'];
         $device->ip_address = $request['ip_address'];
+        $device->ssh_port = $request['ssh_port'];
         $device->user_ID = $request['user_ID'];
         $device->save();
         if(!$device) {
@@ -118,5 +121,57 @@ class TeamleadController extends Controller
             'message' => 'Thêm thiết bị thành công',
             'device' => $device
         ], 200);
+    }
+
+
+    public function getListGroupDevice($user_id)
+    {
+        if(!Auth::check()){
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+        $groups = DeviceGroup::where('user_ID', $user_id)->get();
+        if (!$groups) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tồn tại nhóm thiết bị nào',
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Danh sách nhóm thiết bị',
+            'groups' => $groups,
+        ], 200);
+    }
+
+    public function createGroupDevice(AddDvGroupRequest $addDvGroupRequest)
+    {
+        $request = $addDvGroupRequest->validated();
+
+        // Tạo nhóm thiết bị mới
+        $group = new DeviceGroup();
+        $group->name = $request['name'];
+        $group->user_ID = $request['user_ID'];
+
+        $group->save();
+
+        if (!$group) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo nhóm thiết bị không thành công',
+            ], 500);
+        }
+        $deviceIds = collect($request['deviceList'])->pluck('device_id')->toArray();
+
+        // Gán thiết bị vào nhóm thông qua quan hệ nhiều-nhiều
+        $group->devices()->attach($deviceIds);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tạo nhóm thiết bị thành công',
+            'group' => $group
+        ], 200);
+
     }
 }

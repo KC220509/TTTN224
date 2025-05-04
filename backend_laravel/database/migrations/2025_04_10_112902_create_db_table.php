@@ -46,6 +46,7 @@ return new class extends Migration {
             $table->id('device_id');
             $table->string('name');
             $table->string('ip_address');
+            $table->integer('ssh_port');
             $table->unsignedBigInteger('user_ID');  
             $table->timestamps();
 

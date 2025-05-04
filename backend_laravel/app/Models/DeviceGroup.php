@@ -9,10 +9,14 @@ class DeviceGroup extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name'];
+    protected $fillable = [
+        'name', 
+        'user_ID',
+    ];
 
     public function devices()
     {
-        return $this->belongsToMany(Device::class, 'device_group_device');
+        return $this->belongsToMany(Device::class, 'device_group_device', 'device_group_ID', 'device_ID');
     }
+
 }

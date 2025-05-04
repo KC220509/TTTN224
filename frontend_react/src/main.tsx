@@ -15,7 +15,9 @@ import IndexPage from './pages/AdminPage/indexPage.tsx';
 import UpdatePass from './pages/AdminPage/updatePass.tsx';
 import IndexPageTL from './pages/TeamleadPage/indexPage.tsx';
 import DeviceDeviceGroup from './pages/TeamleadPage/device-Dvgroup.tsx';
-// import IndexPage from './pages/AdminPage/indexPage.tsx';
+import PageResetPass from './pages/PageResetPass/PageResetPass.tsx';
+import CommandListPage from './pages/TeamleadPage/commandListPage.tsx';
+import ProfilePage from './pages/TeamleadPage/profilePage.tsx';
 
 
 createRoot(document.getElementById('root')!).render(
@@ -23,7 +25,11 @@ createRoot(document.getElementById('root')!).render(
     <Router>
       <Routes>
         <Route path="/" element={<App />} >
+          {/* Public Routes */}
           <Route index element={<LoginPage />} />
+          <Route path='reset-pass-admin' element={<PageResetPass />} />
+
+          {/* Private Routes */}
 
 
           {/* Admin Layout */}
@@ -37,6 +43,8 @@ createRoot(document.getElementById('root')!).render(
           <Route path='teamlead-page' element={<PrivateRoute allowedRoles={['2']}><TeamleadPage /></PrivateRoute>} >
             <Route index element={<IndexPageTL />} />
             <Route path='device-groups' element={<DeviceDeviceGroup />} />
+            <Route path='command-lists' element={<CommandListPage />} />
+            <Route path='profiles' element={<ProfilePage />} />
           </Route>
 
           {/* Operator Layout */}

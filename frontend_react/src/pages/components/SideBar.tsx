@@ -46,6 +46,17 @@ const Sidebar: React.FC = () => {
               state={{ title: 'Quản lý thiết bị và nhóm thiết bị' }}>
                 Devices & Groups
             </NavLink>
+            <NavLink to="/teamlead-page/command-lists" 
+              className={({ isActive }: { isActive: boolean }) => (isActive ? 'active-link' : '')} 
+              state={{ title: 'Quản lý danh sách lệnh' }}>
+                Command Lists
+            </NavLink>
+            <NavLink to="/teamlead-page/profiles" 
+              className={({ isActive }: { isActive: boolean }) => (isActive ? 'active-link' : '')} 
+              state={{ title: 'Quản lý danh sách lệnh' }}>
+                Profiles
+            </NavLink>
+
           </ul>
         </>
       }

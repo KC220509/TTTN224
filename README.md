@@ -43,7 +43,7 @@ npm run dev
 
 
 #Khởi động thiết bị ảo
-docker run -it --name device2 -p 2222:22 ubuntu
+docker run -it --name device3 -p 2226:22 ubuntu
 
 apt update
 apt-get install iputils-ping

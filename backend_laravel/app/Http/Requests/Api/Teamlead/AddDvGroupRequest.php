@@ -11,7 +11,7 @@ class AddDvGroupRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,17 @@ class AddDvGroupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'required|string|max:255|unique:device_groups,name',
+            'user_ID' => 'required|integer|exists:users,user_id',
+            'deviceList' => 'required|array',
+            'deviceList.*.device_id' => 'required|integer|exists:devices,device_id',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.unique' => 'Tên nhóm thiết bị đã tồn tại.',
         ];
     }
 }

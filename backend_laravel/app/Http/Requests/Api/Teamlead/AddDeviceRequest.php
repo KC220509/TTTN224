@@ -24,6 +24,7 @@ class AddDeviceRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'ip_address' => 'required|ip',
+            'ssh_port' => 'required|integer|min:1|max:65535',
             'user_ID' => 'required|integer|exists:users,user_id',
         ];
     }

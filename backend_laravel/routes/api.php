@@ -20,6 +20,7 @@ use Laravel\Sanctum\Sanctum;
 */
 Route::post('login', [AccountController::class, 'loginAction'])->name('login');
 
+Route::post('/reset-pass-admin', [AccountController::class, 'AdminResetPass'])->name('resetPassAdmin');
 Route::post('/reset-pass', [AccountController::class, 'resetPass'])->name('resetPassUser');
 
 Route::middleware(['auth:sanctum', 'check_role:1'])->prefix('admin')->group(function () {
@@ -38,5 +39,8 @@ Route::middleware(['auth:sanctum', 'check_role:2'])->prefix('teamlead')->group(f
     Route::get('/list-device/{user_id}', [TeamleadController::class, 'getListDevice'])->name('getListDevice');
     Route::post('/check-device', [TeamleadController::class, 'checkDevice'])->name('checkDevice');
     Route::post('/create-device', [TeamleadController::class, 'createDevice'])->name('createDevice');
+
+    Route::get('/list-group/{user_id}', [TeamleadController::class, 'getListGroupDevice'])->name('getListGroupDevice');
+    Route::post('/create-group', [TeamleadController::class, 'createGroupDevice'])->name('createGroupDevice');
 });
 

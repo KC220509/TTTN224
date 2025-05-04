@@ -9,6 +9,12 @@ interface Device {
   device_id: number; 
   name: string;
   ip_address: string;
+  ssh_port: string;
+}
+
+interface DeviceGroup {
+  device_group_id: number;
+  name: string;
 }
 const DeviceDeviceGroup = () => {
 
@@ -69,6 +75,7 @@ const DeviceDeviceGroup = () => {
         const resAddDevice = await axios.post('http://127.0.0.1:8000/api/teamlead/create-device',{
           name: name,
           ip_address: resCheckIp.data.ip,
+          ssh_port: ssh_port,
           user_ID: localStorage.getItem("user_id"),
           
           }, {
@@ -90,6 +97,11 @@ const DeviceDeviceGroup = () => {
             , 2000);
     
           }
+      }else{
+        setError("Không thể kết nối đến thiết bị. Vui lòng kiểm tra lại.");
+        setTimeout(() => {
+          setError('');
+        }, 2000);
       }
 
     }catch(err){
@@ -104,6 +116,83 @@ const DeviceDeviceGroup = () => {
     }
   };
 
+  const [groups, setGroups] = useState<DeviceGroup[]>([]);
+  const fetchListGroup = async () => {
+    try{
+      const user_id = localStorage.getItem("user_id");
+      const resListDevice = await axios.get(`http://127.0.0.1:8000/api/teamlead/list-group/${user_id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        }
+      });
+
+      if(resListDevice.data.success){
+        setGroups(resListDevice.data.groups);
+      }
+      else{
+        setError(resListDevice.data.message);
+      }
+    }
+    catch{
+      setError("Lỗi gọi API");
+    }
+  }
+  
+  useEffect(() => {
+    fetchListGroup();
+  },[]);
+
+  const [showAddGroup, setShowAddGroup] = useState(false);
+  const [successAddGr, setSuccessAddGr] = useState<string | null>(null);
+  const [groupName, setGroupName] = useState('');
+  const [selectedDevicesID, setSelectedDevicesID] = useState<number[]>([]);
+
+  const handleCheckboxChange = (deviceId: number) => {
+    setSelectedDevicesID((prev) =>
+      prev.includes(deviceId)
+        ? prev.filter((id) => id !== deviceId)
+        : [...prev, deviceId]
+    );
+  };
+  
+
+  const handleAddGroup = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try{
+      const resAddGroup = await axios.post('http://127.0.0.1:8000/api/teamlead/create-group',{
+        name: `${groupName}_${localStorage.getItem("user_id")}`,
+        deviceList : selectedDevicesID.map(id => ({ device_id: id })),
+        user_ID: localStorage.getItem("user_id"),
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        }
+      })
+
+      if(resAddGroup.data.success){
+        setShowAddGroup(false);
+        setGroupName('');
+        setSelectedDevicesID([]);
+        fetchListGroup();
+        (e.target as HTMLFormElement).reset();
+        setError('');
+        setSuccessAddGr(resAddGroup.data.message);
+        setTimeout(() => {
+          setSuccessAddGr('');
+        }
+        , 2000);
+      }
+    }
+    catch (err) {
+      setSuccessAddGr('');
+      if (axios.isAxiosError(err) && err.response?.data?.errors?.name) {
+        setError(err.response.data.errors.name[0]);
+      }else {
+        setError("Tạo nhóm thiết bị không thành công.");
+      }
+    }
+  };
+
 
   return (
     <>
@@ -111,11 +200,10 @@ const DeviceDeviceGroup = () => {
         <div className="device-group flex-col">
           <div className="device-group-header">Devices</div>
           <div className="device-group-content flex-col">
-            
             {devices.map((device) => (
               <div key={device.device_id} className="device-group-item flex-row">
                 <div className="item-name">{device.name}</div>
-                <div className="item-ip_address">{device.ip_address}</div>
+                <div className="item-ip_address">{device.ip_address}:{device.ssh_port}</div>
               </div>
             ))}
           </div>
@@ -130,17 +218,15 @@ const DeviceDeviceGroup = () => {
         <div className="device-group flex-col">
           <div className="device-group-header">Device Group</div>
           <div className="device-group-content flex-col">
-            
-           
-              <div  className="device-group-item flex-row">
-                <div className="item-name">Routers</div>
+            {groups.map((group) => (
+              <div key={group.device_group_id} className="device-group-item flex-row">
+                <div className="item-name">{group.name}</div>
               </div>
-              <div  className="device-group-item flex-row">
-                <div className="item-name">Switchs</div>
-              </div>
+            ))}
           </div>
+          {successAddGr && <p style={{color: '#00ff37',textAlign: 'center', fontWeight: 'bold'}}>{successAddGr}</p>}
           <div className="device-group-footer">
-            <button className="btn-open-addGroup">
+            <button onClick={() => setShowAddGroup(!showAddGroup)} className="btn-open-addGroup">
               <FontAwesomeIcon icon={faPlus} className='icon' />
               Add Group
             </button>
@@ -148,27 +234,61 @@ const DeviceDeviceGroup = () => {
         </div>
       </div>
 
-      <div className={`add-device-container ${showAddDevice ? 'showAddDevice' : ''}`}>
-        <form onSubmit={handleAddDevice} className='form-add-device flex-col'>
-          <div className="form-header flex-row">
-            <h2>Thêm thiết bị</h2>
-            <FontAwesomeIcon icon={faXmark} className='icon' onClick={() => setShowAddDevice(!showAddDevice)} />
-          </div>
-          <div className="form-body flex-col">
-            <label htmlFor="name">Device Name:</label>
-            <input onChange={(e) => setDeviceName(e.target.value)} type="text" id="name" name="name" required />
+      {showAddDevice && (
+        <div className='add-device-container'>
+          <form onSubmit={handleAddDevice} className='form-add-device flex-col'>
+            <div className="form-header flex-row">
+              <h2>Thêm thiết bị</h2>
+              <FontAwesomeIcon icon={faXmark} className='icon' onClick={() => setShowAddDevice(!showAddDevice)} />
+            </div>
+            <div className="form-body flex-col">
+              <label htmlFor="name">Device Name:</label>
+              <input onChange={(e) => setDeviceName(e.target.value)} type="text" id="name" name="name" required />
 
-            <label htmlFor="ip-address">IP Sever:</label>
-            <input onChange={(e) => setIpAddress(e.target.value)} type="text" id="ip-address" name="ip-address" required />
+              <label htmlFor="ip-address">IP Sever:</label>
+              <input onChange={(e) => setIpAddress(e.target.value)} type="text" id="ip-address" name="ip-address" required />
 
-            <label htmlFor="ip-address">SSH_Port:</label>
-            <input onChange={(e) => setSsh_port(e.target.value)} type="text" id="ip-address" name="ip-address" required />
+              <label htmlFor="ssh_port">SSH_Port:</label>
+              <input onChange={(e) => setSsh_port(e.target.value)} type="text" id="ssh_port" name="ssh_port" required />
 
-            <button type="submit" className='btn-add-device'>Thêm mới</button>
-          </div>
-          {error && <p style={{color: '#ff0808',textAlign: 'center', fontWeight: 'bold'}}>{error}</p>}
-        </form>
-      </div>
+              <button type="submit" className='btn-add-device'>Thêm mới</button>
+            </div>
+            {error && <p style={{color: '#ff0808',textAlign: 'center', fontWeight: 'bold'}}>{error}</p>}
+          </form>
+        </div>
+      )}
+
+
+      {showAddGroup && (
+        <div className='add-group-container'>
+          <form onSubmit={handleAddGroup} className='form-add-group flex-col'>
+            <div className="form-header flex-row">
+              <h2>Thêm nhóm thiết bị</h2>
+              <FontAwesomeIcon icon={faXmark} className='icon' onClick={() => setShowAddGroup(!showAddGroup)} />
+            </div>
+            <div className="form-body flex-col">
+              <label htmlFor="name">Tên nhóm:</label>
+              <input onChange={(e) => setGroupName(e.target.value)} type="text" id="name" name="name" required />
+
+              <label className='device-list-title'>Danh sách thiết bị:</label>
+              <div className="device-list flex-col">
+                {devices.map((device) => (
+                  <div className='device-item flex-row' key={device.device_id}>
+                    <input type="checkbox" name="device_id" id={`device_id_${device.device_id}`} className='device-id-check'
+                      checked={selectedDevicesID.includes(device.device_id)}
+                      onChange={() => {handleCheckboxChange(device.device_id)}}
+                    />
+                    <span className='device-name-span'>{device.name} - {device.ip_address}:{device.ssh_port}</span>
+                  </div>
+                ))}
+              </div>
+
+              <button type="submit" className='btn-add-group'>Thêm mới</button>
+            </div>
+            {error && <p style={{color: '#ff0808',textAlign: 'center', fontWeight: 'bold'}}>{error}</p>}
+          </form>
+        </div>
+      )}
     </>
   );
 }
