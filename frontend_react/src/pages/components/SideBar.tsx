@@ -53,7 +53,7 @@ const Sidebar: React.FC = () => {
             </NavLink>
             <NavLink to="/teamlead-page/profiles" 
               className={({ isActive }: { isActive: boolean }) => (isActive ? 'active-link' : '')} 
-              state={{ title: 'Quản lý danh sách lệnh' }}>
+              state={{ title: 'Quản lý profile' }}>
                 Profiles
             </NavLink>
 

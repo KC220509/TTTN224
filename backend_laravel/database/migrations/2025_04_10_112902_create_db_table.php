@@ -88,6 +88,7 @@ return new class extends Migration {
         Schema::create('command_lists', function (Blueprint $table) {
             $table->id('command_list_id');
             $table->string('name');
+            $table->string('description')->nullable();
             $table->text('commands');
             $table->unsignedBigInteger('user_ID');  
             $table->timestamps();

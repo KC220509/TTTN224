@@ -4,6 +4,7 @@ import './styles/device-group.css';
 import { faPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 interface Device {
   device_id: number; 
@@ -17,7 +18,8 @@ interface DeviceGroup {
   name: string;
 }
 const DeviceDeviceGroup = () => {
-
+  const location = useLocation();
+  const title = location.state?.title || '';
 
   const [devices, setDevices] = useState<Device[]>([]);
 
@@ -196,9 +198,12 @@ const DeviceDeviceGroup = () => {
 
   return (
     <>
+      <div className="head-content flex-row">
+        <h1 className="title-nav">{title}</h1>
+      </div>
       <div className="device-group-container flex-row">
         <div className="device-group flex-col">
-          <div className="device-group-header">Devices</div>
+          <div className="device-group-header">Danh sách thiết bị</div>
           <div className="device-group-content flex-col">
             {devices.map((device) => (
               <div key={device.device_id} className="device-group-item flex-row">
@@ -242,7 +247,7 @@ const DeviceDeviceGroup = () => {
               <FontAwesomeIcon icon={faXmark} className='icon' onClick={() => setShowAddDevice(!showAddDevice)} />
             </div>
             <div className="form-body flex-col">
-              <label htmlFor="name">Device Name:</label>
+              <label htmlFor="name">Tên thiết bị:</label>
               <input onChange={(e) => setDeviceName(e.target.value)} type="text" id="name" name="name" required />
 
               <label htmlFor="ip-address">IP Sever:</label>

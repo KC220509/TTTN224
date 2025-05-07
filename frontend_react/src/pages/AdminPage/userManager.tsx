@@ -10,8 +10,6 @@ import { faEye, faEyeSlash } from "@fortawesome/free-regular-svg-icons";
 const UserManagers = () => {
     const location = useLocation();
     const title = location.state?.title || '';
-    // const [success, setSuccess] = useState('');
-    // const [error, setError] = useState('');
 
     interface User {
         user_id: number;
