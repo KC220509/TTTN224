@@ -140,11 +140,9 @@ const ProfilePage = () => {
 
     
     const [operatorList, setOperatorList] = useState<Operator[]>([]);
-    const [operator, setOperator] = useState<string>('');
-    const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
     const [profileList, setProfileList] = useState<Profile[]>([]);
-    const [profile, setProfile] = useState<string>('');
-    const [selectedProfiles, setSelectedProfiles] = useState<string[]>([]);
+
+   
     const fetchListOperator = async () => {
         try {
             const getListOperator = await axios.get(`http://127.0.0.1:8000/api/teamlead/list-operator`, {
@@ -186,17 +184,22 @@ const ProfilePage = () => {
         }
     }
 
+    const [operatorSelect, setOperatorSelect] = useState<string>('');
+    const [operatorCheckeds, setOperatorsCheckeds] = useState<number[]>([]);
+    const [profileSelect, setProfileSelect] = useState<string>('');
+    const [profilesCheckeds, setProfilesCheckeds] = useState<number[]>([]);
+
     // Update button state
     useEffect(() => {
         fetchListOperator();
         fetchListProfile();
 
         if (isSingleOperatorMode) {
-        setIsButtonDisabled(!operator || selectedProfiles.length === 0);
+        setIsButtonDisabled(!operatorSelect || profilesCheckeds.length === 0);
         } else {
-        setIsButtonDisabled(!profile || selectedOperators.length === 0);
+        setIsButtonDisabled(!profileSelect || operatorCheckeds.length === 0);
         }
-    }, [isSingleOperatorMode, selectedOperators.length, selectedProfiles.length, operator, profile]);
+    }, [isSingleOperatorMode, operatorCheckeds.length, profilesCheckeds.length, operatorSelect, profileSelect]);
 
     // Toggle mode
     const handleToggleMode = () => {
@@ -207,17 +210,53 @@ const ProfilePage = () => {
     };
 
     // Handle checkbox changes
-    const handleCheckboxChange = (id: string, type: 'operators' | 'profiles', checked: boolean) => {
+    const handleCheckboxChange = (id: number, type: 'operators' | 'profiles', checked: boolean) => {
         if (type === 'operators') {
-        setSelectedOperators(prev =>
-            checked ? [...prev, id] : prev.filter(opId => opId !== id)
-        );
-        } else {
-        setSelectedProfiles(prev =>
-            checked ? [...prev, id] : prev.filter(profId => profId !== id)
-        );
+            setOperatorsCheckeds(prev =>
+                checked ? [...prev, id] : prev.filter(opId => opId !== id)
+            );
+        } else if (type === 'profiles'){
+            setProfilesCheckeds(prev =>
+                checked ? [...prev, id] : prev.filter(profId => profId !== id)
+            );
         }
     };    
+
+    const handleAssign = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        try {
+            const user_id = localStorage.getItem('user_id');
+            const resAssign = await axios.post("http://127.0.0.1:8000/api/teamlead/" + (isSingleOperatorMode ? "assign-profiles-operator" : "assign-operators-profile") , {
+                user_ID: user_id,
+                ...(isSingleOperatorMode
+                    ? { operator_ID: operatorSelect, profile_IDs: profilesCheckeds }
+                    : { operator_IDs: operatorCheckeds, profile_ID: profileSelect })
+
+               
+            }, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+            if(resAssign.data.success) {
+                alert(resAssign.data.message);
+                setOperatorSelect('');
+                setProfileSelect('');
+                setOperatorsCheckeds([]);
+                setProfilesCheckeds([]);
+                setShowSuccess(true);
+                setShowAssignProfile(false);
+            }
+            else {
+                alert(resAssign.data.message);
+            }
+
+        }
+        catch (error) {
+            console.error("Error assigning profile:", error);
+        }
+    }
+
 
 
     return (
@@ -307,91 +346,91 @@ const ProfilePage = () => {
                         <h2 className="form-title">
                         {isSingleOperatorMode ? 'Assign Profiles to Operator' : 'Assign Operators to Profile'}
                         </h2>
-                        <form method="post">
-                        <div className="form-group">
-                            {isSingleOperatorMode ? (
-                            <>
-                                <label htmlFor="operatorSelect">Danh sách Operator</label>
-                                <select
-                                id="operatorSelect"
-                                value={operator}
-                                onChange={e => setOperator(e.target.value)}
-                                required
-                                >
-                                <option value="" disabled>
-                                    Chọn operator
-                                </option>
-                                {operatorList.map(operator => (
-                                    <option key={operator.user_id} value={operator.user_id}>{operator.username}</option>
-                                ))}
-                                </select>
-                            </>
-                            ) : (
-                            <>
-                                <label>Danh sách Operator</label>
-                                <div className="checkbox-group">
+                        <form onSubmit={handleAssign} method="POST">
+                            <div className="form-group">
+                                {isSingleOperatorMode ? (
+                                <>
+                                    <label htmlFor="operatorSelect">Danh sách Operator</label>
+                                    <select
+                                    id="operatorSelect"
+                                    value={operatorSelect}
+                                    onChange={e => setOperatorSelect(e.target.value)}
+                                    required
+                                    >
+                                    <option value="" disabled>
+                                        Chọn operator
+                                    </option>
                                     {operatorList.map(operator => (
-                                        <label key={operator.user_id}>
+                                        <option key={operator.user_id} value={operator.user_id}>{operator.username}</option>
+                                    ))}
+                                    </select>
+                                </>
+                                ) : (
+                                <>
+                                    <label>Danh sách Operator</label>
+                                    <div className="checkbox-group">
+                                        {operatorList.map(operator => (
+                                            <label key={operator.user_id}>
+                                            <input
+                                                type="checkbox"
+                                                value={operator.user_id}
+                                                checked={operatorCheckeds.includes(operator.user_id)}
+                                                onChange={e => handleCheckboxChange(operator.user_id, 'operators', e.target.checked)}
+                                            />
+                                            {operator.username}
+                                            </label>
+                                        ))}
+                                    </div>
+                                </>
+                                )}
+                            </div>
+                            <div className="form-group">
+                                {isSingleOperatorMode ? (
+                                <>
+                                    <label>Danh sách profile</label>
+                                    <div className="checkbox-group">
+                                    {profileList.map(profile => (
+                                        <label key={profile.profile_id}>
                                         <input
                                             type="checkbox"
-                                            value={operator.user_id}
-                                            checked={selectedOperators.includes(operator.user_id.toString())}
-                                            onChange={e => handleCheckboxChange(operator.user_id.toString(), 'operators', e.target.checked)}
+                                            value={profile.profile_id}
+                                            checked={profilesCheckeds.includes(profile.profile_id)}
+                                            onChange={e => handleCheckboxChange(profile.profile_id, 'profiles', e.target.checked)}
                                         />
-                                        {operator.username}
+                                        {profile.name}
                                         </label>
                                     ))}
-                                </div>
-                            </>
-                            )}
-                        </div>
-                        <div className="form-group">
-                            {isSingleOperatorMode ? (
-                            <>
-                                <label>Danh sách profile</label>
-                                <div className="checkbox-group">
-                                {profileList.map(profile => (
-                                    <label key={profile.profile_id}>
-                                    <input
-                                        type="checkbox"
-                                        value={profile.profile_id}
-                                        checked={selectedProfiles.includes(profile.profile_id.toString())}
-                                        onChange={e => handleCheckboxChange(profile.profile_id.toString(), 'profiles', e.target.checked)}
-                                    />
-                                    {profile.name}
-                                    </label>
-                                ))}
-                                </div>
-                            </>
-                            ) : (
-                            <>
-                                <label htmlFor="profileSelect">Select Profile</label>
-                                <select
-                                id="profileSelect"
-                                value={profile}
-                                onChange={e => setProfile(e.target.value)}
-                                required
+                                    </div>
+                                </>
+                                ) : (
+                                <>
+                                    <label htmlFor="profileSelect">Select Profile</label>
+                                    <select
+                                    id="profileSelect"
+                                    value={profileSelect}
+                                    onChange={e => setProfileSelect(e.target.value)}
+                                    required
+                                    >
+                                    <option value="" disabled>
+                                        Chọn profile
+                                    </option>
+                                    {profileList.map(profile => (
+                                        <option key={profile.profile_id} value={profile.profile_id}>{profile.name}</option>
+                                    ))}
+                                    </select>
+                                </>
+                                )}
+                            </div>
+                            <div className="flex-row">
+                                <button onClick={() => setShowAssignProfile(!showAssignProfile)} className="btn-close-assign">Đóng</button>
+                                <button
+                                    type="submit"
+                                    className="assign-profile-btn"
+                                    disabled={isButtonDisabled}
                                 >
-                                <option value="" disabled>
-                                    Chọn profile
-                                </option>
-                                {profileList.map(profile => (
-                                    <option key={profile.profile_id} value={profile.profile_id}>{profile.name}</option>
-                                ))}
-                                </select>
-                            </>
-                            )}
-                        </div>
-                        <div className="flex-row">
-                            <button onClick={() => setShowAssignProfile(!showAssignProfile)} className="btn-close-assign">Đóng</button>
-                            <button
-                                type="submit"
-                                className="assign-profile-btn"
-                                disabled={isButtonDisabled}
-                            >
-                                {isSingleOperatorMode ? 'Assign Profiles' : 'Assign Profile'}
-                            </button>
-                        </div>
+                                    {isSingleOperatorMode ? 'Assign Profiles' : 'Assign Profile'}
+                                </button>
+                            </div>
                         </form>
                         {showSuccess && <div className="success-message">Assignment successful!</div>}
                     </div>

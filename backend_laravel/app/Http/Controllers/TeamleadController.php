@@ -6,6 +6,8 @@ use App\Http\Requests\Api\Teamlead\AddCommandListRequest;
 use App\Http\Requests\Api\Teamlead\AddDeviceRequest;
 use App\Http\Requests\Api\Teamlead\AddDvGroupRequest;
 use App\Http\Requests\Api\Teamlead\AddProfileRequest;
+use App\Http\Requests\Api\Teamlead\AssignOperatorProfileRequest;
+use App\Http\Requests\Api\Teamlead\AssignProfileOperatorRequest;
 use App\Models\CommandList;
 use App\Models\Device;
 use App\Models\DeviceGroup;
@@ -17,6 +19,7 @@ use Illuminate\Http\Request;
 use Illuminate\Process\Exceptions\ProcessFailedException;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Sail\Console\AddCommand;
+use PhpParser\Node\Expr\Assign;
 use Symfony\Component\Process\Process;
 
 
@@ -296,5 +299,93 @@ class TeamleadController extends Controller
         ], 200);
     }
 
+
+    public function assignProfileOperator(AssignProfileOperatorRequest $assignProfileOperatorRequest)
+    {
+        try{
+            
+            $request = $assignProfileOperatorRequest->validated();
+
+            // Tìm profile theo ID
+            $profile = Profile::find($request['profile_IDs']);
+            $operator = User::find($request['operator_ID']);
+            if (!$profile || !$operator) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Dữ liệu không tồn tại',
+                ], 404);
+            }
+
+
+            $profileIds = $request['profile_IDs'];
+
+            // Kiểm tra xem mỗi profile đã được gán chưa
+            foreach ($profileIds as $profileId) {
+                if (!$operator->profiles->contains('profile_id', $profileId)) {
+                    // Gán profile nếu chưa được gán
+                    $operator->profiles()->attach($profileId, [
+                        'operator_ID' => $request['operator_ID'],  // Cột liên kết với bảng users
+                        'user_ID' => $request['user_ID']           // Cột bổ sung về người thực hiện hành động
+                    ]);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Gán profile cho operator thành công',
+            ], 200);
+        
+        }
+        catch(\Exception $e){
+            return response()->json([
+                'success' => false,
+                'message' => 'Gán profile cho operator không thành công',
+                'error' => $e->getMessage()
+            ], 500);
+
+        }
+    }
+    public function assignOperatorProfile(AssignOperatorProfileRequest $assignOperatorProfileRequest)
+{
+    try {
+        $request = $assignOperatorProfileRequest->validated();
+
+        // Tìm profile theo ID
+        $profile = Profile::where('profile_id', $request['profile_ID'])->first();
+
+        if (!$profile) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy profile',
+            ], 404);
+        }
+
+        $operatorIds = $request['operator_IDs']; // array
+
+        // Lấy danh sách operator đã được gán
+        $existingOperatorIds = $profile->users()->pluck('users.user_id')->toArray();
+
+        // Lọc ra những operator chưa được gán
+        $newOperatorIds = array_diff($operatorIds, $existingOperatorIds);
+
+        // Gán các operator mới vào profile
+        foreach ($newOperatorIds as $operatorId) {
+            $profile->users()->attach($operatorId, [
+                'user_ID' => $request['user_ID'] // người thực hiện hành động
+            ]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Gán profile cho nhiều operator thành công',
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Gán profile cho nhiều operator không thành công',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+}
 
 }

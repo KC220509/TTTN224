@@ -40,9 +40,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
+    public function profiles()
+    {
+        return $this->belongsToMany(Profile::class, 'profile_operator', 'operator_ID', 'profile_ID')
+                    ->withPivot('user_ID');  // Lưu trữ thông tin về người thực hiện hành động
+    }
+
 }
