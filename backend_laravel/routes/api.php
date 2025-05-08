@@ -42,5 +42,13 @@ Route::middleware(['auth:sanctum', 'check_role:2'])->prefix('teamlead')->group(f
 
     Route::get('/list-group/{user_id}', [TeamleadController::class, 'getListGroupDevice'])->name('getListGroupDevice');
     Route::post('/create-group', [TeamleadController::class, 'createGroupDevice'])->name('createGroupDevice');
+
+    Route::get('/list-command/{user_id}', [TeamleadController::class, 'getListCommand'])->name('getListCommand');
+    Route::post('/create-command', [TeamleadController::class, 'createCommandList'])->name('createCommandList');
+
+    Route::get('/list-profile/{user_id}', [TeamleadController::class, 'getListProfile'])->name('getListProfile');
+    Route::get('/list-operator', [TeamleadController::class, 'getListOperator'])->name('getListOperator');
+    
+    Route::post('/create-profile', [TeamleadController::class, 'createProfile'])->name('createProfile');
 });
 

@@ -9,7 +9,16 @@ class CommandList extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'commands'];
+    protected $fillable = [
+        'name', 
+        'description',
+        'commands',
+        'user_ID',
+    ];
+    protected $casts = [
+        'commands' => 'array',
+    ];
+    
 
     public function profiles()
     {

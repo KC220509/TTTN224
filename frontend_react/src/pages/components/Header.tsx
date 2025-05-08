@@ -8,17 +8,19 @@ interface User {
 }
 
 const Header: React.FC = () => {
-  const token = localStorage.getItem("token") || '';
-  
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = '/?error=usernotfound';
+  };
 
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!token) {
-          window.location.href = '/?error=usernotfound';
-        };
+        // if (!token) {
+        //   window.location.href = '/?error=usernotfound';
+        // };
 
         const roleId = Number(localStorage.getItem("role_id"));
         let urlKey = '';

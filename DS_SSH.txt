@@ -1,0 +1,45 @@
+Danh sách lệnh ssh
+[
+  {
+    "name": "Check OS Version",
+    "description": "Xem thông tin về phiên bản hệ điều hành đang chạy.",
+    "command": "cat /etc/os-release"
+  },
+]
+[
+  {
+    "name": "List Directory",
+    "description": "Liệt kê các tệp và thư mục trong thư mục hiện tại.",
+    "commands": [
+      "ls -la",
+      "ls -lh",
+    ]
+  },
+  {
+    "name": "Check Disk Usage",
+    "description": "Hiển thị dung lượng đĩa sử dụng và còn trống của các phân vùng.",
+    "commands": [
+      "df -h",
+      "du -sh /home/*",
+      "lsblk"
+    ]
+  },
+  {
+    "name": "Restart Service",
+    "description": "Khởi động lại một dịch vụ hệ thống.",
+    "commands": [
+      "sudo systemctl restart apache2",
+      "sudo systemctl restart nginx",
+      "sudo systemctl restart mysql"
+    ]
+  },
+  {
+    "name": "Manage Users",
+    "description": "Quản lý người dùng hệ thống.",
+    "commands": [
+      "sudo useradd newuser",
+      "sudo usermod -aG sudo newuser",
+      "sudo userdel newuser"
+    ]
+  }
+]

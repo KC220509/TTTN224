@@ -105,6 +105,7 @@ return new class extends Migration {
             $table->string('name');
             $table->unsignedBigInteger('command_list_ID');
             $table->unsignedBigInteger('device_group_ID');
+            $table->unsignedBigInteger('user_ID');
             $table->foreign('command_list_ID')
                   ->references('command_list_id')
                   ->on('command_lists')
@@ -113,22 +114,31 @@ return new class extends Migration {
                   ->references('device_group_id')
                   ->on('device_groups')
                   ->onDelete('cascade');
+            $table->foreign('user_ID')
+                  ->references('user_id')
+                  ->on('users')
+                  ->onDelete('cascade');
             $table->timestamps();
         });
 
         // PROFILE_USER (pivot)
-        Schema::create('profile_user', function (Blueprint $table) {
+        Schema::create('profile_operator', function (Blueprint $table) {
             $table->unsignedBigInteger('profile_ID');
+            $table->unsignedBigInteger('operator_ID');
             $table->unsignedBigInteger('user_ID');
             $table->foreign('profile_ID')
                   ->references('profile_id')
                   ->on('profiles')
                   ->onDelete('cascade');
+            $table->foreign('operator_ID')
+                  ->references('user_id')
+                  ->on('users')
+                  ->onDelete('cascade');
             $table->foreign('user_ID')
                   ->references('user_id')
                   ->on('users')
                   ->onDelete('cascade');
-            $table->primary(['profile_ID', 'user_ID']);
+            $table->primary(['profile_ID', 'operator_ID', 'user_ID']);
         });
 
         // SESSIONS

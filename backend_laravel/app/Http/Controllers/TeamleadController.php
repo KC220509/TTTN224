@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Api\Teamlead\AddCommandListRequest;
 use App\Http\Requests\Api\Teamlead\AddDeviceRequest;
 use App\Http\Requests\Api\Teamlead\AddDvGroupRequest;
+use App\Http\Requests\Api\Teamlead\AddProfileRequest;
+use App\Models\CommandList;
 use App\Models\Device;
 use App\Models\DeviceGroup;
+use App\Models\Profile;
+use App\Models\User;
 use App\Services\DeviceService;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Process\Exceptions\ProcessFailedException;
 use Illuminate\Support\Facades\Auth;
+use Laravel\Sail\Console\AddCommand;
 use Symfony\Component\Process\Process;
 
 
@@ -174,4 +180,121 @@ class TeamleadController extends Controller
         ], 200);
 
     }
+
+
+    public function getListCommand($user_id)
+    {
+        if(!Auth::check()){
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+        $commandLists = CommandList::where('user_ID', $user_id)->get();
+        if (!$commandLists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tồn tại danh sách lệnh nào',
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Danh sách lệnh',
+            'command_lists' => $commandLists,
+        ], 200);
+    }
+
+    public function createCommandList(AddCommandListRequest $addCommandListRequest){
+        $request = $addCommandListRequest->validated();
+
+        // Tạo danh sách lệnh mới
+        $commandList = new CommandList();
+        $commandList->name = $request['name'];
+        $commandList->description = $request['description'];
+        $commandList->commands = $request['commands'];  // Chuyển đổi mảng thành chuỗi JSON
+        $commandList->user_ID = $request['user_ID'];
+
+        if (!$commandList->save()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo danh sách lệnh không thành công',
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tạo danh sách lệnh thành công',
+            'command_list' => $commandList
+        ], 200);
+    }
+
+    public function getListProfile($user_id)
+    {
+        if(!Auth::check()){
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+        $profiles = Profile::where('user_ID', $user_id)->get();
+        if (!$profiles) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tồn tại profile nào',
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Danh sách profile',
+            'profiles' => $profiles,
+        ], 200);
+    }
+
+    public function createProfile(AddProfileRequest $addProfileRequest)
+    {
+        $request = $addProfileRequest->validated();
+
+        // Tạo profile mới
+        $profile = new Profile();
+        $profile->name = $request['name'];
+        $profile->command_list_id = $request['command_list_id'];
+        $profile->device_group_id = $request['device_group_id'];
+        $profile->user_ID = $request['user_ID'];
+
+        if (!$profile->save()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Tạo profile không thành công',
+            ], 500);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tạo profile thành công',
+            'profile' => $profile
+        ], 200);
+
+    }
+
+
+    public function getListOperator()
+    {
+        if(!Auth::check()){
+            return response()->json([
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+        $operators = User::where('role_ID', 3)->get();
+        if (!$operators) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tồn tại operator nào',
+            ], 404);
+        }
+        return response()->json([
+            'success' => true,
+            'message' => 'Danh sách operator',
+            'operators' => $operators,
+        ], 200);
+    }
+
+
 }

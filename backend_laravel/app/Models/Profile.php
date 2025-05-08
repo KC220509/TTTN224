@@ -9,7 +9,12 @@ class Profile extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'command_list_id', 'device_group_id'];
+    protected $fillable = [
+        'name', 
+        'command_list_id', 
+        'device_group_id', 
+        'user_ID'
+    ];
 
     public function commandList()
     {
@@ -23,7 +28,8 @@ class Profile extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'profile_user');
+        return $this->belongsToMany(User::class, 'profile_operator', 'profile_ID', 'operator_ID')
+                    ->withPivot('user_ID');
     }
 }
 

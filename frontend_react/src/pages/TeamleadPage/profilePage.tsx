@@ -3,6 +3,11 @@ import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 
+interface CommandList {
+    command_list_id: number;
+    name: string;
+}
+
 interface DeviceGroup {
     device_group_id: number;
     name: string;
@@ -10,37 +15,15 @@ interface DeviceGroup {
 
 
 interface Operator {
-    id: string;
-    name: string;
+    user_id: number;
+    username: string;
   }
   
   interface Profile {
-    id: string;
+    profile_id: number;
     name: string;
   }
   
-  // Sample data
-  const operators: Operator[] = [
-    { id: 'operator1', name: 'John Doe' },
-    { id: 'operator2', name: 'Jane Smith' },
-    { id: 'operator3', name: 'Alex Johnson' },
-    { id: 'operator4', name: 'John Doe' },
-    { id: 'operator5', name: 'Jane Smith' },
-    { id: 'operator6', name: 'Alex Johnson' },
-  ];
-  
-  const profiles: Profile[] = [
-    { id: 'profile1', name: 'Admin' },
-    { id: 'profile2', name: 'Editor' },
-    { id: 'profile3', name: 'Viewer' },
-    { id: 'profile4', name: 'Manager' },
-    { id: 'profile5', name: 'Analyst' },
-    { id: 'profile6', name: 'Guest' },
-    { id: 'profile7', name: 'Moderator' },
-    { id: 'profile8', name: 'Developer' },
-    { id: 'profile9', name: 'Support' },
-    { id: 'profile10', name: 'Tester' },
-  ];
   
   
 
@@ -54,11 +37,35 @@ const ProfilePage = () => {
     const [showAddProfile, setShowAddProfile] = useState(false);
     const [showAssignProfile, setShowAssignProfile] = useState(false);
 
-    // Create Profile
+    // Get Data
     const [profileName, setProfileName] = useState('');
+
+    const [commandLists, setCommandLists] = useState<CommandList[]>([]);
     const [commandList, setCommandList] = useState('');
     const [deviceGroups, setDeviceGroups] = useState<DeviceGroup[]>([]);
     const [deviceGroup, setDeviceGroup] = useState('')
+
+    const fetchListCommand = async () => {
+        try {
+            const user_id = localStorage.getItem('user_id');
+            const resCommandList = await axios.get(`http://localhost:8000/api/teamlead/list-command/${user_id}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                    'Content-Type': 'application/json',
+                }
+            });
+            if(resCommandList.data.success) {
+                setCommandLists(resCommandList.data.command_lists);
+            }
+            else {
+                setCommandLists([]);
+                alert(resCommandList.data.message);
+            }
+
+        } catch (error) {
+            console.error("Error fetching command list:", error);
+        }
+    }
 
     const fetchListGroup = async () => {
         try{
@@ -83,37 +90,119 @@ const ProfilePage = () => {
                 setErrorGetGroups("Lỗi gọi API");
             }, 3000);
         }
-      }
+    }
       
     useEffect(() => {
-      fetchListGroup();
+        fetchListCommand();
+        fetchListGroup();
     },[]);
+
+    //Create Profile
+
+    const hadleAddProfileSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        try{
+            const resCreateProfile = await axios.post("http://127.0.0.1:8000/api/teamlead/create-profile", {
+                name: profileName,
+                command_list_id: commandList,
+                device_group_id: deviceGroup,
+                user_ID: localStorage.getItem('user_id'),
+            }, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+            if(resCreateProfile.data.success) {
+                alert(resCreateProfile.data.message);
+                setShowAddProfile(false);
+                setProfileName('');
+                setCommandList('');
+                setDeviceGroup('');
+            }
+            else {
+                alert(resCreateProfile.data.message);
+            }
+
+        }
+        catch(error) {
+            console.error("Error creating profile:", error);
+        }
+    }
+
+
+
     
     // Assign Profile
     const [isSingleOperatorMode, setIsSingleOperatorMode] = useState<boolean>(true);
-    const [selectedOperator, setSelectedOperator] = useState<string>('');
-    const [selectedProfile, setSelectedProfile] = useState<string>('');
-    const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
-    const [selectedProfiles, setSelectedProfiles] = useState<string[]>([]);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
     const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
+    
+    const [operatorList, setOperatorList] = useState<Operator[]>([]);
+    const [operator, setOperator] = useState<string>('');
+    const [selectedOperators, setSelectedOperators] = useState<string[]>([]);
+    const [profileList, setProfileList] = useState<Profile[]>([]);
+    const [profile, setProfile] = useState<string>('');
+    const [selectedProfiles, setSelectedProfiles] = useState<string[]>([]);
+    const fetchListOperator = async () => {
+        try {
+            const getListOperator = await axios.get(`http://127.0.0.1:8000/api/teamlead/list-operator`, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+            if(getListOperator.data.success) {
+                setOperatorList(getListOperator.data.operators);
+            }
+            else { 
+                setOperatorList([]);
+                alert(getListOperator.data.message);
+            }
+        }
+        catch (error) { 
+            console.error("Error fetching operator list:", error);
+        }
+    }
+
+    const fetchListProfile = async () => {
+        try {
+            const user_id = localStorage.getItem('user_id');
+            const getListProfile = await axios.get(`http://127.0.0.1:8000/api/teamlead/list-profile/${user_id}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+            if(getListProfile.data.success) {
+                setProfileList(getListProfile.data.profiles);
+            }
+            else { 
+                setProfileList([]);
+                alert(getListProfile.data.message);
+            }
+        }
+        catch (error) { 
+            console.error("Error fetching operator list:", error);
+        }
+    }
+
     // Update button state
     useEffect(() => {
+        fetchListOperator();
+        fetchListProfile();
+
         if (isSingleOperatorMode) {
-        setIsButtonDisabled(!selectedOperator || selectedProfiles.length === 0);
+        setIsButtonDisabled(!operator || selectedProfiles.length === 0);
         } else {
-        setIsButtonDisabled(!selectedProfile || selectedOperators.length === 0);
+        setIsButtonDisabled(!profile || selectedOperators.length === 0);
         }
-    }, [isSingleOperatorMode, selectedOperator, selectedProfile, selectedProfiles, selectedOperators]);
+    }, [isSingleOperatorMode, selectedOperators.length, selectedProfiles.length, operator, profile]);
 
     // Toggle mode
     const handleToggleMode = () => {
         setIsSingleOperatorMode(!isSingleOperatorMode);
-        setSelectedOperator('');
-        setSelectedProfile('');
-        setSelectedOperators([]);
-        setSelectedProfiles([]);
+        fetchListOperator();
+        fetchListProfile();
         setShowSuccess(false);
     };
 
@@ -152,7 +241,7 @@ const ProfilePage = () => {
                 
                 <div className="profile-form-container">
                     <h2>Profile</h2>
-                    <form method="post">
+                    <form onSubmit={hadleAddProfileSubmit} method="post">
                         <div className="form-group">
                             <label htmlFor="profileName">Tên profile</label>
                             <input
@@ -166,18 +255,18 @@ const ProfilePage = () => {
                         </div>
             
                         <div className="form-group">
-                                <label htmlFor="commandList">Chọn danh sách lệnh</label>
-                                <select
-                                    id="commandList"
-                                    value={commandList}
-                                    onChange={(e) => setCommandList(e.target.value)}
-                                    required
-                                >
-                                    <option value="" disabled>Danh sách lệnh</option>
-                                    <option value="command1">Command 1</option>
-                                    <option value="command2">Command 2</option>
-                                    <option value="command3">Command 3</option>
-                                </select>
+                            <label htmlFor="commandList">Chọn danh sách lệnh</label>
+                            <select
+                                id="commandList"
+                                value={commandList}
+                                onChange={(e) => setCommandList(e.target.value)}
+                                required
+                            >
+                                <option value="" disabled>Danh sách lệnh</option>
+                                {commandLists.map((command) => (
+                                    <option key={command.command_list_id} value={command.command_list_id}>{command.name}</option>
+                                ))}
+                            </select>
                         </div>
             
                         <div className="form-group">
@@ -198,7 +287,7 @@ const ProfilePage = () => {
             
                         <div className="btn-frm-create-profile flex-row">
 
-                            <button type="submit" className="cancel-btn" onClick={() => setShowAddProfile(!showAddProfile)}>Hủy bỏ</button>
+                            <button type="button" className="cancel-btn" onClick={() => setShowAddProfile(!showAddProfile)}>Hủy bỏ</button>
                             <button type="submit" className="create-profile-btn">Tạo mới profile</button>
                         </div>
                     </form>
@@ -225,35 +314,33 @@ const ProfilePage = () => {
                                 <label htmlFor="operatorSelect">Danh sách Operator</label>
                                 <select
                                 id="operatorSelect"
-                                value={selectedOperator}
-                                onChange={e => setSelectedOperator(e.target.value)}
+                                value={operator}
+                                onChange={e => setOperator(e.target.value)}
                                 required
                                 >
                                 <option value="" disabled>
                                     Chọn operator
                                 </option>
-                                {operators.map(op => (
-                                    <option key={op.id} value={op.id}>
-                                    {op.name}
-                                    </option>
+                                {operatorList.map(operator => (
+                                    <option key={operator.user_id} value={operator.user_id}>{operator.username}</option>
                                 ))}
                                 </select>
                             </>
                             ) : (
                             <>
-                                <label>Select Operator Users</label>
+                                <label>Danh sách Operator</label>
                                 <div className="checkbox-group">
-                                {operators.map(op => (
-                                    <label key={op.id}>
-                                    <input
-                                        type="checkbox"
-                                        value={op.id}
-                                        checked={selectedOperators.includes(op.id)}
-                                        onChange={e => handleCheckboxChange(op.id, 'operators', e.target.checked)}
-                                    />
-                                    {op.name}
-                                    </label>
-                                ))}
+                                    {operatorList.map(operator => (
+                                        <label key={operator.user_id}>
+                                        <input
+                                            type="checkbox"
+                                            value={operator.user_id}
+                                            checked={selectedOperators.includes(operator.user_id.toString())}
+                                            onChange={e => handleCheckboxChange(operator.user_id.toString(), 'operators', e.target.checked)}
+                                        />
+                                        {operator.username}
+                                        </label>
+                                    ))}
                                 </div>
                             </>
                             )}
@@ -263,15 +350,15 @@ const ProfilePage = () => {
                             <>
                                 <label>Danh sách profile</label>
                                 <div className="checkbox-group">
-                                {profiles.map(prof => (
-                                    <label key={prof.id}>
+                                {profileList.map(profile => (
+                                    <label key={profile.profile_id}>
                                     <input
                                         type="checkbox"
-                                        value={prof.id}
-                                        checked={selectedProfiles.includes(prof.id)}
-                                        onChange={e => handleCheckboxChange(prof.id, 'profiles', e.target.checked)}
+                                        value={profile.profile_id}
+                                        checked={selectedProfiles.includes(profile.profile_id.toString())}
+                                        onChange={e => handleCheckboxChange(profile.profile_id.toString(), 'profiles', e.target.checked)}
                                     />
-                                    {prof.name}
+                                    {profile.name}
                                     </label>
                                 ))}
                                 </div>
@@ -281,17 +368,15 @@ const ProfilePage = () => {
                                 <label htmlFor="profileSelect">Select Profile</label>
                                 <select
                                 id="profileSelect"
-                                value={selectedProfile}
-                                onChange={e => setSelectedProfile(e.target.value)}
+                                value={profile}
+                                onChange={e => setProfile(e.target.value)}
                                 required
                                 >
                                 <option value="" disabled>
                                     Chọn profile
                                 </option>
-                                {profiles.map(prof => (
-                                    <option key={prof.id} value={prof.id}>
-                                    {prof.name}
-                                    </option>
+                                {profileList.map(profile => (
+                                    <option key={profile.profile_id} value={profile.profile_id}>{profile.name}</option>
                                 ))}
                                 </select>
                             </>
