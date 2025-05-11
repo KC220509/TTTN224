@@ -1,0 +1,204 @@
+
+.action-open-frm{
+    width: max-content;
+    margin: 30px 0 20px 30px;
+    padding: 8px 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #fff;
+    background-color: #007bff;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(224, 224, 224, 0.5);
+}
+
+.command-list-container{
+    min-width: 600px;
+    width: max-content;
+    height: max-content;
+    max-height: fit-content;
+    margin-left: 30px;
+    padding: 10px 10px;
+    gap: 25px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    border: 1px solid rgb(170, 170, 170);
+}
+
+.command-list-container .head-container{
+    width: 100%;
+    justify-content: space-between;
+}
+
+.command-list-container .content-container{
+    gap: 10px;
+}
+
+
+.head-container .head-title{
+    width: 100%;
+    font-weight: bold;
+}
+
+.command-list-container .div-item{
+    width: 125px;
+    font-size: 16px;
+}
+
+.head-container .head-title .title-name,
+.content-container .content-item .item-name,
+.head-container .head-title .title-number-command,
+.content-container .content-item .item-number-command{
+
+    width: 200px;
+}
+
+.head-container .head-title .title-number-command,
+.content-container .content-item .item-number-command,
+.head-container .head-title .title-created,
+.content-container .content-item .item-created,
+.head-container .head-title .title-action,
+.content-container .content-item .item-action{
+text-align: center;
+}
+
+.content-container .content-item .item-action .action-update-command{
+    cursor: pointer;
+}
+
+
+.container-add-command{
+    position: absolute;
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+
+}
+
+.container-add-command .frm-add-command{
+    margin: 0 auto;
+    width: 400px;
+    height: max-content;
+    padding: 20px 30px;
+    gap: 15px;
+    background-color: #fff;
+    border-radius: 8px
+}
+
+.container-add-command .frm-add-command h3{
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+    color: #383838; 
+}
+
+.frm-add-command .div-item{
+    gap: 5px;
+}
+
+.frm-add-command .div-item label{
+    font-size: 16px;
+    font-weight: 600;
+    color: #000;
+}
+
+.frm-add-command .div-item .item-input{
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 15px;
+    border: 1px solid rgb(170, 170, 170);
+    border-radius: 5px;
+    outline: none;
+    color: #383838;
+}
+.command-item-container{
+    width: 100%;
+    max-height: 160px;
+    padding: 10px 0px;
+    gap: 10px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    border-bottom: 1px solid rgb(170, 170, 170);
+}
+.frm-add-command .command-item{
+    position: relative;
+    font-size: 15px;
+    align-items: center;
+    border: 1px solid rgb(170, 170, 170);
+    border-radius: 5px;
+}
+
+.frm-add-command .command-item .item-input-ssh{
+    width: 100%;
+    height: 100%;
+    font-size: 15px;
+    padding: 8px 30px;
+    border: none;
+    outline: none;
+    color: #383838;
+    background: transparent;
+    
+}
+
+.frm-add-command .command-item .icon-command{
+    position: absolute;
+    
+}
+
+.frm-add-command .command-item .icon-ssh{
+    font-size: 12px;
+    color: #053a51;
+    left: 10px;
+    font-weight: bold;
+}
+
+.frm-add-command .command-item .icon-remove{
+    font-size: 16px;
+    color: #ff2200;
+    right: 10px;
+    cursor: pointer;
+}
+
+.frm-add-command .div-item .add-row-command{
+    width: max-content;
+    border-radius: 2px;
+    padding: 5px 10px 6px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #2da95b;
+    cursor: pointer;
+}
+
+
+.frm-add-command .btn-box{
+    justify-content: end;
+    gap: 10px;
+}
+
+
+.frm-add-command .btn-box .btn-frm{
+    width: max-content;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+}
+
+
+.frm-add-command .btn-box .btn-frm.btn-add-command{
+    background-color: #007bff;
+}
+.frm-add-command .btn-box .btn-frm.btn-cancel-command{
+    background-color: #a2a1a1;
+}
+
+
+

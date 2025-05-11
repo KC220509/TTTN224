@@ -49,8 +49,13 @@ Route::middleware(['auth:sanctum', 'check_role:2'])->prefix('teamlead')->group(f
     Route::get('/list-profile/{user_id}', [TeamleadController::class, 'getListProfile'])->name('getListProfile');
     Route::get('/list-operator', [TeamleadController::class, 'getListOperator'])->name('getListOperator');
     
+    Route::get('/list-profile-operator/{user_id}', [TeamleadController::class, 'getListProfileOperator'])->name('getListProfileOperator');
     Route::post('/create-profile', [TeamleadController::class, 'createProfile'])->name('createProfile');
     Route::post('/assign-profiles-operator', [TeamleadController::class, 'assignProfileOperator'])->name('assignProfileOperator');
     Route::post('/assign-operators-profile', [TeamleadController::class, 'assignOperatorProfile'])->name('assignOperatorProfile');
+
 });
 
+Route::middleware(['auth:sanctum', 'check_role:3'])->prefix('operator')->group(function () {
+    Route::get('/user{user_id}', [AccountController::class, 'index'])->name('op_index');
+});

@@ -1,9 +1,11 @@
-const OperatorPage = () => {
+import { Outlet } from "react-router-dom";
+import Layout from "../components/Layout";
+
+const OperatorPage:React.FC = () => {
     return (
-        <div>
-        <h1>Teamlead Page</h1>
-        <p>Welcome to the Operator page!</p>
-        </div>
+        <Layout>
+            <Outlet/>
+        </Layout>
     );
 }
 

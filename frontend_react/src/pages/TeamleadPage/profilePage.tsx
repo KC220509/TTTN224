@@ -1,6 +1,10 @@
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "./styles/profile.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { faPlus, faRotate } from "@fortawesome/free-solid-svg-icons";
 
 
 interface CommandList {
@@ -17,12 +21,21 @@ interface DeviceGroup {
 interface Operator {
     user_id: number;
     username: string;
+    email: string;
   }
   
-  interface Profile {
+interface Profile {
     profile_id: number;
     name: string;
-  }
+}
+
+interface ProfileOperator {
+    profile_ID: number;
+    operator_ID: number;
+    profile_name: string;
+    operator_name: string;
+    operator_email: string;
+}
   
   
   
@@ -119,6 +132,8 @@ const ProfilePage = () => {
                 setProfileName('');
                 setCommandList('');
                 setDeviceGroup('');
+                fetchListOperator();
+                fetchListProfile();
             }
             else {
                 alert(resCreateProfile.data.message);
@@ -141,6 +156,7 @@ const ProfilePage = () => {
     
     const [operatorList, setOperatorList] = useState<Operator[]>([]);
     const [profileList, setProfileList] = useState<Profile[]>([]);
+    const [profileOperatorList, setProfileOperatorList] = useState<ProfileOperator[]>([]);
 
    
     const fetchListOperator = async () => {
@@ -184,6 +200,30 @@ const ProfilePage = () => {
         }
     }
 
+    const fecthListProfileOperator = async () => {
+        try {
+            const user_id = localStorage.getItem('user_id');
+            const getListProfileOperator = await axios.get(`http://127.0.0.1:8000/api/teamlead/list-profile-operator/${user_id}`, {
+                headers: {
+                    'authorization': 'Bearer ' + localStorage.getItem('token'),
+                }
+            });
+            if(getListProfileOperator.data.success) {
+                setProfileOperatorList(getListProfileOperator.data.profile_operators);
+            }
+            else { 
+                setProfileOperatorList([]);
+                alert(getListProfileOperator.data.message);
+            }
+        }
+        catch (error) { 
+            console.error("Error fetching operator list:", error);
+        }
+    }
+
+    const [convertStyleList, setConvertStyleList] = useState<boolean>(false);
+
+
     const [operatorSelect, setOperatorSelect] = useState<string>('');
     const [operatorCheckeds, setOperatorsCheckeds] = useState<number[]>([]);
     const [profileSelect, setProfileSelect] = useState<string>('');
@@ -191,6 +231,7 @@ const ProfilePage = () => {
 
     // Update button state
     useEffect(() => {
+        fecthListProfileOperator();
         fetchListOperator();
         fetchListProfile();
 
@@ -246,6 +287,7 @@ const ProfilePage = () => {
                 setProfilesCheckeds([]);
                 setShowSuccess(true);
                 setShowAssignProfile(false);
+                fecthListProfileOperator();
             }
             else {
                 alert(resAssign.data.message);
@@ -256,6 +298,8 @@ const ProfilePage = () => {
             console.error("Error assigning profile:", error);
         }
     }
+
+
 
 
 
@@ -434,8 +478,100 @@ const ProfilePage = () => {
                         </form>
                         {showSuccess && <div className="success-message">Assignment successful!</div>}
                     </div>
-            </div>
+                </div>
             )}
+    
+            
+            {/* Bảng hiển thị danh sách profile và operator được gán */}
+            <div className="profile-container flex-col">
+                <span className="btn-convert-stylelist" onClick={() => setConvertStyleList(!convertStyleList) }>
+                    <FontAwesomeIcon icon={faRotate} />
+                </span>
+
+                {/* Bảng đầu tiên */}
+                {!convertStyleList && (
+                    <table className="profile-table">
+                        <thead>
+                            <tr>
+                                <th>Tên Operator</th>
+                                <th>Email</th>
+                                <th>Profiles</th>
+                                <th>Gán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {operatorList.length === 0 ? (
+                                <tr>
+                                    <td colSpan={4} className="no-data">Hiện chưa có dữ liệu nào</td>
+                                </tr>
+                            ) : (
+                                operatorList.map((operator) => (
+                                    <tr key={operator.user_id}>
+                                        <td>{operator.username}</td>
+                                        <td>{operator.email}</td>
+                                        <td>
+                                        {profileOperatorList
+                                            .filter((po) => po.operator_ID === operator.user_id)
+                                            .map((po) => (
+                                                <div key={po.profile_ID}>{po.profile_name}</div> // ví dụ hiển thị tên profile
+                                            ))
+                                        }
+                                        </td>
+                                        <td className="action-cell">
+                                            <FontAwesomeIcon
+                                                icon={faPlus}
+                                                title="Gán vào Profile"
+                                                className="assign-icon"
+                                            />
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                )}
+
+                {/* Bảng thứ hai */}
+                {convertStyleList && (
+                    <table className="profile-table">
+                        <thead>
+                            <tr>
+                                <th>Tên Profile</th>
+                                <th>Tên Operator</th>
+                                <th>Gán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {profileList.length === 0 ? (
+                                <tr>
+                                    <td colSpan={3} className="no-data">Hiện chưa có dữ liệu</td>
+                                </tr>
+                            ) : (
+                                profileList.map((profile) => (
+                                    <tr key={profile.profile_id}>
+                                        <td>{profile.name}</td>
+                                        <td>
+                                            {profileOperatorList
+                                                .filter((po) => po.profile_ID === profile.profile_id)
+                                                .map((po) => (
+                                                    <div key={po.operator_ID}>{po.operator_name}</div> // ví dụ hiển thị tên profile
+                                                ))
+                                            }
+                                        </td>
+                                        <td className="action-cell">
+                                            <FontAwesomeIcon
+                                                icon={faPlus}
+                                                title="Gán vào Operator"
+                                                className="assign-icon"
+                                            />
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                )}
+            </div>
         </>
     );
 }

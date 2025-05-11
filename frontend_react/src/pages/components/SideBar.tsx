@@ -61,6 +61,23 @@ const Sidebar: React.FC = () => {
         </>
       }
       
+      {roleId === 3 && 
+        <>
+          <Link to="/operator-page" className='head-title'>
+            <h1>Operator</h1>
+          </Link>
+        
+          <ul className='sidebar-nav flex-col'>
+            <NavLink to="/" 
+              className={({ isActive }: { isActive: boolean }) => (isActive ? 'active-link' : '')} 
+              state={{ title: 'Quản lý SSH' }}>
+                Send SSH
+            </NavLink>
+
+          </ul>
+        </>
+      }
+
       
 
       <button onClick={handleLogout} className='logout-acc flex-row'>

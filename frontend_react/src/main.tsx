@@ -7,7 +7,6 @@ import App from './App.tsx';
 import LoginPage from './pages/LoginPage/loginPage.tsx';
 import AdminPage from './pages/AdminPage/adminPage.tsx';
 import TeamleadPage from './pages/TeamleadPage/teamleadPage.tsx';
-import OperatorPage from './pages/OperatorPage/OperatorPage.tsx';
 import SupervisorPage from './pages/SupervisorPage/SupervisorPage.tsx';
 import PrivateRoute from './PrivateRoute.tsx';
 import UserManagers from './pages/AdminPage/userManager.tsx';
@@ -18,6 +17,8 @@ import DeviceDeviceGroup from './pages/TeamleadPage/device-Dvgroup.tsx';
 import PageResetPass from './pages/PageResetPass/PageResetPass.tsx';
 import CommandListPage from './pages/TeamleadPage/commandListPage.tsx';
 import ProfilePage from './pages/TeamleadPage/profilePage.tsx';
+import OperatorPage from './pages/OperatorPage/OperatorPage.tsx';
+import IndexPageOP from './pages/OperatorPage/indexPage.tsx';
 
 
 createRoot(document.getElementById('root')!).render(
@@ -48,7 +49,9 @@ createRoot(document.getElementById('root')!).render(
           </Route>
 
           {/* Operator Layout */}
-          <Route path='operator-page' element={<PrivateRoute allowedRoles={['3']}><OperatorPage /></PrivateRoute>} />
+          <Route path='operator-page' element={<PrivateRoute allowedRoles={['3']}><OperatorPage /></PrivateRoute>} >
+            <Route index element={<IndexPageOP />} />
+          </Route>
 
           {/* Supervisor Layout */}
           <Route path='supervisor-page' element={<PrivateRoute allowedRoles={['4']}><SupervisorPage /></PrivateRoute>} />

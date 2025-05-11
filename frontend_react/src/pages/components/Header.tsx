@@ -33,6 +33,10 @@ const Header: React.FC = () => {
             // Role is teamlead
             urlKey = 'api/teamlead';
             break;
+          case 3:
+            // Role is teamlead
+            urlKey = 'api/operator';
+            break;
           default:
             urlKey = 'api';
             break;

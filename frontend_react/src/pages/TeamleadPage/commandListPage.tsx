@@ -1,4 +1,5 @@
 
+import "./styles/commandList.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare } from "@fortawesome/free-regular-svg-icons";
 import { useLocation } from "react-router-dom";
