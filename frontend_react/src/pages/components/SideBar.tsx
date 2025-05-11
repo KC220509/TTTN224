@@ -52,6 +52,13 @@ const Sidebar: React.FC = () => {
                 Devices & Groups
             </NavLink>
           </ul>
+          <ul className='sidebar-nav flex-col'>
+            <NavLink to="/teamlead-page/profile-page" 
+              className={({ isActive }: { isActive: boolean }) => (isActive ? 'active-link' : '')} 
+              state={{ title: 'Quản lý profile' }}>
+                Profile
+            </NavLink>
+          </ul>
         </>
       }
       

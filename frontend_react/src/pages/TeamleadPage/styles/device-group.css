@@ -1,11 +1,11 @@
-.device-group-container{
+.device-group-container {
     height: 100%;
     align-items: center;
     justify-content: space-around;
 }
 
 
-.device-group{
+.device-group {
     /* position: relative; */
     width: 300px;
     height: 350px;
@@ -18,7 +18,7 @@
 }
 
 
-.device-group .device-group-header{
+.device-group .device-group-header {
     padding: 10px 20px;
     text-align: center;
     font-weight: bold;
@@ -26,7 +26,7 @@
     text-transform: uppercase;
 }
 
-.device-group .device-group-content{
+.device-group .device-group-content {
     height: 100%;
     background-color: rgb(227 237 246);
     border-radius: 5px;
@@ -35,28 +35,29 @@
     gap: 10px;
     overflow-y: scroll;
     scrollbar-width: none;
-    
+
 }
 
-.device-group .device-group-content .device-group-item{
+.device-group .device-group-content .device-group-item {
     justify-content: space-between;
     align-items: center;
 }
 
-.device-group-content .device-group-item .item-name{
+.device-group-content .device-group-item .item-name {
     font-weight: 600;
     color: #383838;
 }
-.device-group-content .device-group-item .item-ip_address{
+
+.device-group-content .device-group-item .item-ip_address {
     font-style: italic;
 }
 
-.device-group .device-group-footer{
+.device-group .device-group-footer {
     text-align: center;
 }
 
 .device-group .device-group-footer .btn-open-addDevice,
-.device-group .device-group-footer .btn-open-addGroup{
+.device-group .device-group-footer .btn-open-addGroup {
     font-size: 16px;
     font-weight: 600;
     text-align: center;
@@ -68,7 +69,7 @@
     cursor: pointer;
 }
 
-.device-group-footer .icon{
+.device-group-footer .icon {
     margin-right: 10px;
 }
 
@@ -77,29 +78,29 @@
 
 
 /* Add Device Container */
-.add-device-container{
-    display: flex; 
+.add-device-container {
+    display: flex;
     align-items: center;
     justify-content: center;
-    position: fixed; 
+    position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4); 
+    background-color: rgba(0, 0, 0, 0.4);
     z-index: 999;
-    visibility: hidden; 
+    visibility: hidden;
     opacity: 0;
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-.showAddDevice{
+.showAddDevice {
     visibility: visible;
     opacity: 1;
 }
 
 
-.form-add-device{
+.form-add-device {
     width: 320px;
     height: max-content;
     margin: auto;
@@ -111,7 +112,7 @@
 
 }
 
-.form-add-device .form-header{
+.form-add-device .form-header {
     text-align: center;
     font-weight: bold;
     font-size: 15px;
@@ -119,7 +120,7 @@
     align-items: center;
 }
 
-.form-add-device .form-header .icon{
+.form-add-device .form-header .icon {
     font-size: 20px;
     font-weight: 600;
     text-align: center;
@@ -127,16 +128,16 @@
     cursor: pointer;
 }
 
-.form-add-device .form-header .icon:hover{
+.form-add-device .form-header .icon:hover {
     color: #ff2200;
 }
 
 
-.form-add-device .form-body{
+.form-add-device .form-body {
     gap: 15px;
 }
 
-.form-add-device .form-body input{
+.form-add-device .form-body input {
     font-size: 15px;
     padding: 8px 20px;
     outline: none;
@@ -145,7 +146,7 @@
     border-radius: 5px;
 }
 
-.form-add-device .form-body .btn-add-device{
+.form-add-device .form-body .btn-add-device {
     width: 150px;
     margin: auto;
     text-align: center;
@@ -155,6 +156,49 @@
     border: none;
     border-radius: 5px;
     background-color: #007bff;
-    color: #fff;    
+    color: #fff;
+    cursor: pointer;
+}
+
+/* CSS Profile Page */
+.profile-container {
+    width: 800px;
+    /* Đặt chiều rộng cố định cho container */
+    margin: 0 auto;
+    /* Căn giữa container */
+    text-align: center;
+}
+
+.profile-header {
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.profile-table {
+    width: 100%;
+    /* Giữ chiều rộng của bảng bằng với container */
+    border-collapse: collapse;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+}
+
+.profile-table th,
+.profile-table td {
+    padding: 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+
+.no-data {
+    text-align: center;
+    color: grey;
+}
+
+.action-cell {
+    text-align: center;
+}
+
+.assign-icon {
     cursor: pointer;
 }

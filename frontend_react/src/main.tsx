@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import App from './App.tsx';
 import LoginPage from './pages/LoginPage/loginPage.tsx';
 import AdminPage from './pages/AdminPage/adminPage.tsx';
-import TeamleadPage from './pages/TeamleadPage/teamleadPage.tsx';
+import TeamleadPage from './pages/TeamleadPage/TeamleadPage.tsx';
 import OperatorPage from './pages/OperatorPage/OperatorPage.tsx';
 import SupervisorPage from './pages/SupervisorPage/SupervisorPage.tsx';
 import PrivateRoute from './PrivateRoute.tsx';
@@ -16,6 +16,7 @@ import UpdatePass from './pages/AdminPage/updatePass.tsx';
 import ResetPass from './pages/AdminPage/resetPassPage.tsx';
 import IndexPageTL from './pages/TeamleadPage/indexPage.tsx';
 import DeviceDeviceGroup from './pages/TeamleadPage/device-Dvgroup.tsx';
+import ProfilePage from './pages/TeamleadPage/profilePage.tsx';
 // import IndexPage from './pages/AdminPage/indexPage.tsx';
 
 
@@ -24,7 +25,9 @@ createRoot(document.getElementById('root')!).render(
     <Router>
       <Routes>
         <Route path="/" element={<App />} >
-          <Route index element={<LoginPage />} />
+          <Route index element={<ProfilePage />} />
+
+
 
 
           {/* Admin Layout */}
@@ -39,6 +42,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path='teamlead-page' element={<PrivateRoute allowedRoles={['2']}><TeamleadPage /></PrivateRoute>} >
             <Route index element={<IndexPageTL />} />
             <Route path='device-groups' element={<DeviceDeviceGroup />} />
+            <Route path='profile-page' element={<ProfilePage />} />
           </Route>
 
           {/* Operator Layout */}
