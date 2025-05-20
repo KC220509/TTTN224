@@ -68,10 +68,10 @@ const Sidebar: React.FC = () => {
           </Link>
         
           <ul className='sidebar-nav flex-col'>
-            <NavLink to="/" 
+            <NavLink to="/operator-page/profiles" 
               className={({ isActive }: { isActive: boolean }) => (isActive ? 'active-link' : '')} 
-              state={{ title: 'Quản lý SSH' }}>
-                Send SSH
+              state={{ title: 'Quản lý profiles' }}>
+                Profiles
             </NavLink>
 
           </ul>

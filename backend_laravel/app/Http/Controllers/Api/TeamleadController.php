@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
 
 use App\Http\Requests\Api\Teamlead\AddCommandListRequest;
 use App\Http\Requests\Api\Teamlead\AddDeviceRequest;
@@ -12,7 +14,6 @@ use App\Models\CommandList;
 use App\Models\Device;
 use App\Models\DeviceGroup;
 use App\Models\Profile;
-use App\Models\ProfileOperator;
 use App\Models\User;
 use App\Services\DeviceService;
 use App\Services\UserService;
@@ -406,7 +407,9 @@ class TeamleadController extends Controller
                 'profile_operator.*',
                 'profiles.name as profile_name',
                 'users.username as operator_name',
-                'users.email as operator_email'
+                'users.email as operator_email',
+                'profiles.command_list_ID',
+                'profiles.device_group_ID',
             )
             ->get();
     

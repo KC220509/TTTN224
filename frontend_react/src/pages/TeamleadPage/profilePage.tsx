@@ -4,7 +4,7 @@ import "./styles/profile.css";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { faPlus, faRotate } from "@fortawesome/free-solid-svg-icons";
+import { faRotate } from "@fortawesome/free-solid-svg-icons";
 
 
 interface CommandList {
@@ -26,6 +26,8 @@ interface Operator {
   
 interface Profile {
     profile_id: number;
+    command_list_ID: number;
+    device_group_ID: number;
     name: string;
 }
 
@@ -151,7 +153,7 @@ const ProfilePage = () => {
     // Assign Profile
     const [isSingleOperatorMode, setIsSingleOperatorMode] = useState<boolean>(true);
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(true);
-    const [showSuccess, setShowSuccess] = useState<boolean>(false);
+    // const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
     
     const [operatorList, setOperatorList] = useState<Operator[]>([]);
@@ -247,7 +249,7 @@ const ProfilePage = () => {
         setIsSingleOperatorMode(!isSingleOperatorMode);
         fetchListOperator();
         fetchListProfile();
-        setShowSuccess(false);
+        // setShowSuccess(false);
     };
 
     // Handle checkbox changes
@@ -285,7 +287,7 @@ const ProfilePage = () => {
                 setProfileSelect('');
                 setOperatorsCheckeds([]);
                 setProfilesCheckeds([]);
-                setShowSuccess(true);
+                // setShowSuccess(true);
                 setShowAssignProfile(false);
                 fecthListProfileOperator();
             }
@@ -298,7 +300,6 @@ const ProfilePage = () => {
             console.error("Error assigning profile:", error);
         }
     }
-
 
 
 
@@ -476,7 +477,7 @@ const ProfilePage = () => {
                                 </button>
                             </div>
                         </form>
-                        {showSuccess && <div className="success-message">Assignment successful!</div>}
+                        {/* {showSuccess && <div className="success-message">Assignment successful!</div>} */}
                     </div>
                 </div>
             )}
@@ -496,7 +497,6 @@ const ProfilePage = () => {
                                 <th>Tên Operator</th>
                                 <th>Email</th>
                                 <th>Profiles</th>
-                                <th>Gán</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -517,13 +517,6 @@ const ProfilePage = () => {
                                             ))
                                         }
                                         </td>
-                                        <td className="action-cell">
-                                            <FontAwesomeIcon
-                                                icon={faPlus}
-                                                title="Gán vào Profile"
-                                                className="assign-icon"
-                                            />
-                                        </td>
                                     </tr>
                                 ))
                             )}
@@ -537,8 +530,9 @@ const ProfilePage = () => {
                         <thead>
                             <tr>
                                 <th>Tên Profile</th>
-                                <th>Tên Operator</th>
-                                <th>Gán</th>
+                                <th>Lệnh</th>
+                                <th>Nhóm thiết bị</th>
+                                <th>Danh sách Operators</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -551,6 +545,23 @@ const ProfilePage = () => {
                                     <tr key={profile.profile_id}>
                                         <td>{profile.name}</td>
                                         <td>
+                                            {commandLists
+                                                .filter((cl) => cl.command_list_id === profile.command_list_ID)
+                                                .map((cl) => (
+                                                    <div key={cl.command_list_id}>{cl.name}</div> // ví dụ hiển thị tên command list
+                                                ))
+                                            }
+                                        </td>
+                                        <td>
+                                            {deviceGroups
+                                                .filter((dg) => dg.device_group_id === profile.device_group_ID)
+                                                .map((dg) => (
+                                                    <div key={dg.device_group_id}>{dg.name}</div> // ví dụ hiển thị tên device group
+                                                ))
+                                            }
+                                        </td>
+
+                                        <td>
                                             {profileOperatorList
                                                 .filter((po) => po.profile_ID === profile.profile_id)
                                                 .map((po) => (
@@ -558,20 +569,18 @@ const ProfilePage = () => {
                                                 ))
                                             }
                                         </td>
-                                        <td className="action-cell">
-                                            <FontAwesomeIcon
-                                                icon={faPlus}
-                                                title="Gán vào Operator"
-                                                className="assign-icon"
-                                            />
-                                        </td>
                                     </tr>
                                 ))
                             )}
                         </tbody>
                     </table>
                 )}
+
+
             </div>
+            
+            
+            
         </>
     );
 }

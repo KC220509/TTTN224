@@ -17,8 +17,9 @@ import DeviceDeviceGroup from './pages/TeamleadPage/device-Dvgroup.tsx';
 import PageResetPass from './pages/PageResetPass/PageResetPass.tsx';
 import CommandListPage from './pages/TeamleadPage/commandListPage.tsx';
 import ProfilePage from './pages/TeamleadPage/profilePage.tsx';
-import OperatorPage from './pages/OperatorPage/OperatorPage.tsx';
 import IndexPageOP from './pages/OperatorPage/indexPage.tsx';
+import ConnectProfilePage from './pages/OperatorPage/opProfilePage.tsx';
+import OperatorPage from './pages/OperatorPage/operatorPage.tsx';
 
 
 createRoot(document.getElementById('root')!).render(
@@ -51,6 +52,7 @@ createRoot(document.getElementById('root')!).render(
           {/* Operator Layout */}
           <Route path='operator-page' element={<PrivateRoute allowedRoles={['3']}><OperatorPage /></PrivateRoute>} >
             <Route index element={<IndexPageOP />} />
+            <Route path='profiles' element={<ConnectProfilePage />} />
           </Route>
 
           {/* Supervisor Layout */}

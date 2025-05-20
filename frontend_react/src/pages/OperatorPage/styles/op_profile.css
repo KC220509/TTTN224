@@ -1,0 +1,122 @@
+.main-content{
+  position: relative;
+}
+.op-container-connect{
+    /* position: relative; */
+    margin-top: 20px;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 50px;
+
+}
+
+.list-profile-op{
+    min-width: max-content;
+}
+
+.list-profile-op th,
+.list-profile-op td{
+    height: 50px;
+    padding: 2px 10px;
+    border: 1px solid #ccc;
+}
+.list-profile-op .op_profile_name{
+    width: 120px;
+}
+.list-profile-op .op_group_name{
+    width: 150px;
+}
+.list-profile-op .op_command_name{
+    width: 200px;
+}
+.list-profile-op .op_detail_name{
+    width: 90px;
+    text-align: center;
+    cursor: pointer;
+}
+
+
+
+/* Terminal Content */
+/* .container-terminal-op{
+    width: 100%;
+}
+
+.container-terminal-op .title-terminal{
+    font-size: 20px;
+
+} */
+ .container-terminal-op {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 90vh;
+  background-color: #fff;
+  border-top: 2px solid #ccc;
+  z-index: 99999;
+  /* transition: transform 0.3s ease-in-out; */
+  /* transform: translateY(65%); */
+  padding: 10px;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+}
+
+
+
+/* Tiêu đề terminal */
+.title-terminal {
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Form connect */
+.form-connect {
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.form-connect .frm-sshport{
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.form-connect .btn-connect-deivce,
+.form-connect .btn-close-connect{
+  min-width: 80px;
+  text-align: center;
+  font-size: 15px;
+  height: 30px;
+  font-weight: bold;
+  padding: 5px 10px;
+  background-color: #00c545;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-connect .btn-close-connect{
+  
+  padding: 5px 10px 6px;
+  background-color: #f44336;
+}
+
+
+/* Nội dung terminal */
+.terminal-content {
+  height: max-content;
+  flex: 1;
+  overflow: hidden;
+  ;
+}
+
+/* Thông báo lỗi */
+.error {
+  color: red;
+  margin-bottom: 10px;
+}
+
+
+
