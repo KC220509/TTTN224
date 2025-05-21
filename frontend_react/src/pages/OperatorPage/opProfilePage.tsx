@@ -23,24 +23,47 @@ interface Device {
     ssh_port: string;
     device_group_ID: number;
 }
+
+
+interface Info{
+  username: string;
+  password: string;
+  host: string;
+  port: number;
+  command: string;
+}
+
 const ConnectProfilePage = () => {
   const location = useLocation();
   const title = location.state?.title || '';
 
+  const [connectSuccess, setConnectSuccess] = useState<string | null>(null);
+  const [connectError, setConnectError] = useState<string | null>(null);
+  
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [indexProfile, setIndexProfle] = useState<Profile | null>(null);
   const [listDeviceAssign, setListDeviceAssign] = useState<Device[]>([]);
-
+  
   const [showConnectDevice, setShowConnectDevice] = useState(false);
-  const [connectSuccess, setConnectSuccess] = useState<string | null>(null);
-  const [connectError, setConnectError] = useState<string | null>(null);
 
   const [showTerminal, setShowTerminal] = useState(false);
 
+  const [username, setUsername] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [host, setHost] = useState<string>('');
+  const [port, setPort] = useState<string>('');
+
+  const [deviceConnect, setDeviceConnect] = useState<string | null>(null);
+  const [info, setInfo] = useState<Info | null>(null);
   
   const terminalRef = useRef<HTMLDivElement>(null);
   const term = useRef<Terminal | null>(null);
   const fitAddon = useRef<FitAddon>(new FitAddon());
+
+
+
+
+
 
   const getProfiles = async () => {
     try {
@@ -90,7 +113,52 @@ const ConnectProfilePage = () => {
     getListDeviceAssign();
     
   }, []);
-  
+
+  const handleConnectDevice = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try{
+      
+      const connectDevice = await axios.post('http://127.0.0.1:8000/api/operator/connect-device', {
+          username: username,
+          password: password,
+          host: host,
+          port: port,
+        }, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      if (connectDevice.data.success) {
+        setShowTerminal(true);
+        setDeviceConnect(connectDevice.data.device_name);
+        setInfo(connectDevice.data.info);
+        setConnectError(null);
+        setConnectSuccess(connectDevice.data.message);
+        setTimeout(() => {
+          setConnectSuccess(null);
+        }
+        , 2000);
+
+      }else {
+        setConnectSuccess(null);
+        setConnectError(connectDevice.data.message);
+        setTimeout(() => {
+          setConnectError(null);
+        }
+        , 2000);
+      }
+    } catch (error) {
+      console.error("Error connecting to device:", error);
+      setConnectSuccess(null);
+      setConnectError("Lỗi kết nối đến thiết bị");
+      setTimeout(() => {
+        setConnectError(null);
+      }
+      , 2000);
+    }
+
+  }
 
   useEffect(() => {
     if (indexProfile && terminalRef.current ) {
@@ -109,26 +177,52 @@ const ConnectProfilePage = () => {
       fitAddon.current.fit();
 
       term.current.writeln("Welcome to the SSH Terminal!");
-      term.current.writeln(`Connecting to profile: ${indexProfile.profile_name}`);
+      term.current.writeln(`Connecting to deivce: ${deviceConnect}`);
       term.current.write("$ ");
 
-      let input = "";
+      let command = "";
 
-      term.current.onKey(({ key, domEvent }) => {
+      term.current.onKey(async ({ key, domEvent }) => {
         const char = key;
 
         if (domEvent.key === "Enter") {
           term.current?.writeln("");
-          term.current?.writeln(`You typed: ${input}`);
-          input = "";
+          if (command.trim()) {
+            try {
+              const sendSSH = await axios.post("http://127.0.0.1:8000/api/operator/sendssh-command", {
+                username: info?.username,
+                password: info?.password,
+                host: info?.host,
+                port: info?.port,
+                command: command,
+              },{
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+              });
+
+              if (sendSSH.data.success) {
+                term.current?.writeln(sendSSH.data.output);
+              } else {
+                term.current?.writeln("Error: " + sendSSH.data.message);
+              }
+            } catch (error: unknown) {
+              if (error instanceof Error) {
+                term.current?.writeln("SSH Error: " + (error.message || "Unknown error"));
+              } else {
+                term.current?.writeln("SSH Error: Unknown error");
+              }
+            }
+          }
+          command = "";
           term.current?.write("$ ");
         } else if (domEvent.key === "Backspace") {
-          if (input.length > 0) {
-            input = input.slice(0, -1);
+          if (command.length > 0) {
+            command = command.slice(0, -1);
             term.current?.write("\b \b");
           }
         } else if (domEvent.key.length === 1) {
-          input += char;
+          command += char;
           term.current?.write(char);
         }
       });
@@ -141,7 +235,7 @@ const ConnectProfilePage = () => {
         term.current?.dispose();
       };
     }
-  }, [indexProfile]);
+  }, [indexProfile, deviceConnect, info]);
 
 
   const handleProfileClick = (profile: Profile) => {
@@ -150,19 +244,11 @@ const ConnectProfilePage = () => {
   };
 
 
-  const handleConnectDevice = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setConnectSuccess('Connect device thành công');
-    setTimeout(() => {
-      setConnectSuccess(null);
-    }
-    , 1000);
-
-    setShowTerminal(true);
-  }
+  
 
   const handleCloseTerminal = () => {
     setIndexProfle(null);
+    setDeviceConnect(null);
     setShowTerminal(false);
     setShowConnectDevice(!showConnectDevice);
   }
@@ -207,16 +293,31 @@ const ConnectProfilePage = () => {
             <h1 className='title-terminal'>Send SSH Device in {indexProfile ? indexProfile.profile_name : ''}</h1>
             <form method='post' className='form-connect flex-row' onSubmit={handleConnectDevice}>
               <span>Kết nối thiết bị:</span>
+              <input type="text" id='username' name='username' placeholder='Tên đăng nhập' required 
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <input type="password" id='password' name='password' placeholder='Mật khẩu' required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+
+              <input type="text" id='host' name='host' placeholder='Địa chỉ IP' required 
+                value={host}
+                onChange={(e) => setHost(e.target.value)}
+              />
+
+              
 
               <div className="list-device-assign">
-                <select className='frm-sshport' name="" id="">
+                <select className='frm-sshport' value={port} onChange={(e) => setPort(e.target.value)} required>
                   <option value="">Danh sách thiết bị</option>
                   {listDeviceAssign.length > 0 ? 
                     (
                       listDeviceAssign
                         .filter(deviceAssign => deviceAssign.device_group_ID === indexProfile?.device_group_id)
                         .map(deviceAssign => (
-                            <option key={deviceAssign.device_id} value={deviceAssign.device_id}>{deviceAssign.device_name}</option>
+                            <option key={deviceAssign.ssh_port} value={deviceAssign.ssh_port}>{deviceAssign.device_name}</option>
                         ))
                       )
                       : (

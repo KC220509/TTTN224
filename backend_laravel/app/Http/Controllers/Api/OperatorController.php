@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\Operator\ConnectRequest;
+use App\Http\Requests\Api\Operator\SendSshRequest;
+use App\Models\Device;
 use App\Models\Profile;
 use App\Models\ProfileOperator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use phpseclib3\Net\SSH2;
 
 class OperatorController extends Controller
 {
@@ -62,6 +66,63 @@ class OperatorController extends Controller
             'success' => true,
             'message' => 'Danh sách profile được gán cho operator',
             'listDeviceAssign' => $listDeviceAssign
+        ], 200);
+    }
+
+
+    public function connectDevice(ConnectRequest $connectRequest){
+        $request = $connectRequest->validated();
+        $username = $request['username'];
+        $password = $request['password'];
+        $host = $request['host'];
+        $port = $request['port'];
+
+        $device = Device::where('ssh_port', $port)->first();
+        $connection = new SSH2($host, $port);
+        if (!$connection->login($username, $password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kết nối thất bại',
+            ], 401);
+        }
+        $info = [
+            'username' => $username,
+            'password' => $password,
+            'host'     => $host,
+            'port'     => $port,
+            'command'  => '',
+        ];
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kết nối thành công',
+            'info' => $info,
+            'device_name' => $device->name
+        ], 200);
+
+    }
+
+
+    public function sendSSHCommand(SendSshRequest $sendSshRequest){
+        $request = $sendSshRequest->validated();
+        $username = $request['username'];
+        $password = $request['password'];
+        $host = $request['host'];
+        $port = $request['port'];
+        $command = $request['command'];
+
+        $connection = new SSH2($host, $port);
+        if (!$connection->login($username, $password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kết nối thất bại',
+            ], 401);
+        }
+        $output = $connection->exec($command);
+        return response()->json([
+            'success' => true,
+            'message' => 'Thực thi lệnh thành công',
+            'output' => $output
         ], 200);
     }
 }

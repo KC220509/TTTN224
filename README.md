@@ -43,7 +43,9 @@ npm run dev
 
 
 #Khởi động thiết bị ảo
-docker run -it --name device3 -p 2226:22 ubuntu
+docker build -t tn224-deivce-image .    (build container user_pass)
+
+docker run -it --name device -p 2226:22 tn224-deivce-image
 
 apt update
 apt-get install iputils-ping

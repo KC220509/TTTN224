@@ -52,4 +52,7 @@ Route::middleware(['auth:sanctum', 'check_role:3'])->prefix('operator')->group(f
     Route::get('/user{user_id}', [AccountController::class, 'index'])->name('op_index');
     Route::get('/list-profile/{user_id}', [OperatorController::class, 'getListProfile'])->name('op_getListProfile');
     Route::get('/list-device-assign', [OperatorController::class, 'getlistDeviceAssign'])->name('op_getlistDeviceAssign');
+
+    Route::post('/connect-device', [OperatorController::class, 'connectDevice'])->name('op_connectDevice');
+    Route::post('/sendssh-command', [OperatorController::class, 'sendSshCommand'])->name('op_sendSshCommand');
 });
