@@ -6,11 +6,13 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "cboden/ratchet": "^0.4.4",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^10.0",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
-        "phpseclib/phpseclib": "^3.0",
+        "react/event-loop": "^1.5",
+        "symfony/process": "^6.4",
         "tymon/jwt-auth": "^2.2"
     },
     "require-dev": {

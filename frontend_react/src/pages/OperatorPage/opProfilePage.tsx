@@ -59,7 +59,11 @@ const ConnectProfilePage = () => {
   const terminalRef = useRef<HTMLDivElement>(null);
   const term = useRef<Terminal | null>(null);
   const fitAddon = useRef<FitAddon>(new FitAddon());
-
+  // const terminalRef = useRef(null);
+  // const term = useRef(null);
+  // const fitAddon = useRef(new FitAddon());
+  const ws = useRef<WebSocket | null>(null);
+  // const commandBuffer = useRef("");
 
 
 
@@ -161,9 +165,8 @@ const ConnectProfilePage = () => {
   }
 
   useEffect(() => {
-    if (indexProfile && terminalRef.current ) {
+    if (indexProfile && terminalRef.current && info) {
       term.current = new Terminal({
-        
         cursorBlink: true,
         fontSize: 14,
         theme: {
@@ -171,59 +174,71 @@ const ConnectProfilePage = () => {
           foreground: "#00ff00",
         },
       });
-
       term.current.loadAddon(fitAddon.current);
       term.current.open(terminalRef.current);
       fitAddon.current.fit();
 
       term.current.writeln("Welcome to the SSH Terminal!");
-      term.current.writeln(`Connecting to deivce: ${deviceConnect}`);
-      term.current.write("$ ");
+      term.current.writeln(`Connecting to device: ${deviceConnect}`);
 
-      let command = "";
+      // Kết nối WebSocket
+      ws.current = new WebSocket("ws://127.0.0.1:9000");
 
-      term.current.onKey(async ({ key, domEvent }) => {
-        const char = key;
+      ws.current.onopen = () => {
+        // Gửi thông tin kết nối SSH
+        if (ws.current) {
+          ws.current.send(
+            JSON.stringify({
+              action: "connect",   // sửa type thành action
+              host: info.host,
+              port: info.port,
+              username: info.username,
+              password: info.password,
+            })
+          );
+        }
+      };
+
+      ws.current.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+
+        // Xử lý output từ server
+        if (msg.output) {
+          if (term.current) term.current.write(msg.output);
+        } else if (msg.success) {
+          if (term.current) {
+            term.current.writeln(msg.success);
+            
+          }
+        } else if (msg.error) {
+          if (term.current) term.current.writeln(`Error: ${msg.error}`);
+        }
+      };
+
+      ws.current.onerror = () => {
+        if (term.current) {
+          term.current.writeln(`WebSocket error occurred`);
+        }
+      };
+
+      ws.current.onclose = () => {
+        if (term.current) {
+          term.current.writeln("\nConnection closed");
+        }
+      };
+
+      // Xử lý input từ bàn phím terminal
+      term.current.onKey(({ key, domEvent }) => {
+        if (!ws.current || ws.current.readyState !== WebSocket.OPEN) return;
 
         if (domEvent.key === "Enter") {
-          term.current?.writeln("");
-          if (command.trim()) {
-            try {
-              const sendSSH = await axios.post("http://127.0.0.1:8000/api/operator/sendssh-command", {
-                username: info?.username,
-                password: info?.password,
-                host: info?.host,
-                port: info?.port,
-                command: command,
-              },{
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("token")}`,
-                },
-              });
+          ws.current.send(JSON.stringify({ action: "input", data: "\r\n" }));
 
-              if (sendSSH.data.success) {
-                term.current?.writeln(sendSSH.data.output);
-              } else {
-                term.current?.writeln("Error: " + sendSSH.data.message);
-              }
-            } catch (error: unknown) {
-              if (error instanceof Error) {
-                term.current?.writeln("SSH Error: " + (error.message || "Unknown error"));
-              } else {
-                term.current?.writeln("SSH Error: Unknown error");
-              }
-            }
-          }
-          command = "";
-          term.current?.write("$ ");
+
         } else if (domEvent.key === "Backspace") {
-          if (command.length > 0) {
-            command = command.slice(0, -1);
-            term.current?.write("\b \b");
-          }
+          ws.current.send(JSON.stringify({ action: "input", data: "\x7f" })); // DEL char (ESC code)
         } else if (domEvent.key.length === 1) {
-          command += char;
-          term.current?.write(char);
+          ws.current.send(JSON.stringify({ action: "input", data: key }));
         }
       });
 
@@ -232,10 +247,16 @@ const ConnectProfilePage = () => {
 
       return () => {
         window.removeEventListener("resize", handleResize);
-        term.current?.dispose();
+        if (ws.current) {
+          ws.current.close();
+        }
+        if (term.current) {
+          term.current.dispose();
+        }
       };
     }
   }, [indexProfile, deviceConnect, info]);
+
 
 
   const handleProfileClick = (profile: Profile) => {
@@ -328,22 +349,21 @@ const ConnectProfilePage = () => {
               </div>
               <button className='btn-connect-deivce' type="submit">Connect</button>
 
-              {connectError && <p style={{color: 'red',textAlign: 'right', fontWeight: 'bold'}}>{connectError}</p>}
-              {connectSuccess && <p style={{color: 'green',textAlign: 'right', fontWeight: 'bold'}}>{connectSuccess}</p>}
 
               <span onClick={() => handleCloseTerminal()} className='btn-close-connect'>Đóng</span>
 
             </form>
-            {/* {showTerminal && ( */}
-              <div className='terminal-content' ref={terminalRef}
-                style={
-                  showTerminal
-                    ? { pointerEvents: "auto" }
-                    : { pointerEvents: "none", opacity: 0.5 }
-                }
-              >
-              </div>
-            {/* )} */}
+            {connectError && <p style={{color: 'red', fontWeight: 'bold'}}>{connectError}</p>}
+            {connectSuccess && <p style={{color: 'green', fontWeight: 'bold'}}>{connectSuccess}</p>}
+            
+            <div className='terminal-content' ref={terminalRef}
+              style={
+                showTerminal
+                  ? { pointerEvents: "auto" }
+                  : { pointerEvents: "none", opacity: 0.5 }
+              }
+            >
+            </div>
 
           </div>
         )}

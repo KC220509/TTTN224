@@ -11,6 +11,8 @@ use App\Models\ProfileOperator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use phpseclib3\Net\SSH2;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
 
 class OperatorController extends Controller
 {
@@ -70,40 +72,54 @@ class OperatorController extends Controller
     }
 
 
-    public function connectDevice(ConnectRequest $connectRequest){
+
+    public function connectDevice(ConnectRequest $connectRequest)
+    {
         $request = $connectRequest->validated();
         $username = $request['username'];
         $password = $request['password'];
         $host = $request['host'];
         $port = $request['port'];
 
+        // Lấy thiết bị theo cổng SSH
         $device = Device::where('ssh_port', $port)->first();
-        $connection = new SSH2($host, $port);
-        if (!$connection->login($username, $password)) {
+
+      
+        // Kết nối SSH để xác thực
+        $connection = ssh2_connect($host, $port);
+        if (!$connection) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kết nối thất bại',
+                'message' => 'Không thể kết nối đến thiết bị'
+            ], 500);
+        }
+        if (!ssh2_auth_password($connection, $username, $password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Xác thực thất bại'
             ], 401);
         }
+
         $info = [
             'username' => $username,
             'password' => $password,
-            'host'     => $host,
-            'port'     => $port,
-            'command'  => '',
+            'host' => $host,
+            'port' => $port,
         ];
+        
+
 
         return response()->json([
             'success' => true,
-            'message' => 'Kết nối thành công',
+            'message' => 'Kết nối thành công và ttyd đã được bật',
+            'device_name' => $device->name,
             'info' => $info,
-            'device_name' => $device->name
         ], 200);
-
     }
 
 
-    public function sendSSHCommand(SendSshRequest $sendSshRequest){
+    public function sendSSHCommand(SendSshRequest $sendSshRequest)
+    {
         $request = $sendSshRequest->validated();
         $username = $request['username'];
         $password = $request['password'];
@@ -111,18 +127,41 @@ class OperatorController extends Controller
         $port = $request['port'];
         $command = $request['command'];
 
-        $connection = new SSH2($host, $port);
-        if (!$connection->login($username, $password)) {
+        // Kết nối SSH
+        $connection = ssh2_connect($host, $port);
+        if (!$connection) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kết nối thất bại',
+                'message' => 'Không thể kết nối đến thiết bị'
+            ], 500);
+        }
+
+        // Xác thực
+        if (!ssh2_auth_password($connection, $username, $password)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Xác thực thất bại'
             ], 401);
         }
-        $output = $connection->exec($command);
+
+        // Tạo PTY (Pseudo Terminal)
+        $stream = ssh2_exec($connection, $command, 'xterm');
+        if (!$stream) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể thực thi lệnh'
+            ], 500);
+        }
+
+        stream_set_blocking($stream, true);
+        $output = stream_get_contents($stream);
+        fclose($stream);
+
         return response()->json([
             'success' => true,
-            'message' => 'Thực thi lệnh thành công',
-            'output' => $output
+            'message' => 'Thực thi thành công',
+            'output' => $output,
         ], 200);
     }
+
 }
